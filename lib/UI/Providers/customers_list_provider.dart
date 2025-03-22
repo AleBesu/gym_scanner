@@ -1,10 +1,9 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/core/generate/generate_qr_image_file.dart';
-import 'package:gym_scanner/core/get_new_qr_file.dart';
-import 'package:gym_scanner/core/get_random_string.dart';
+import 'package:gym_scanner/data/local/customers_database.dart';
+
 import 'package:gym_scanner/domain/customer_entity.dart';
 
 final customerListProvider =
@@ -15,7 +14,20 @@ final customerListProvider =
 );
 
 class _CustomersProvider extends StateNotifier<List<CustomerEntity>> {
-  _CustomersProvider(super.state);
+  CustomersDatabase localDataBase = CustomersDatabase.instance;
+  _CustomersProvider(super.state) {
+    loadInfoFromDatabase();
+  }
+
+  Future<void> loadInfoFromDatabase() async {
+    final db = await localDataBase.getElements();
+
+    state = db
+        .map(
+          (e) => CustomerEntity.fromMap(e),
+        )
+        .toList();
+  }
 
   void add(CustomerEntity addedCustomer) async {
     addedCustomer.creationDate = DateTime.now();
@@ -24,7 +36,8 @@ class _CustomersProvider extends StateNotifier<List<CustomerEntity>> {
 
     addedCustomer.qrCodeImage = await generateUserQrImageFile(addedCustomer);
 
-    state = [...state, addedCustomer];
+    await localDataBase.addCustomer(addedCustomer);
+    await loadInfoFromDatabase();
   }
 
   void addPayment(CustomerEntity addedCustomer, int daysToAdd) {

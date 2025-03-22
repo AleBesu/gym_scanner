@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 class CustomerEntity {
@@ -10,13 +12,58 @@ class CustomerEntity {
   DateTime? expiratioDate;
 
   CustomerEntity(this.name,
-      {this.userImage,
+      {required this.userImage,
       this.qrCodeImage,
       this.id,
+      this.lastPayment,
       this.creationDate,
-      this.expiratioDate});
+      this.expiratioDate}) {
+    lastPayment = creationDate = DateTime.now();
+  }
 
   int get availablesDays {
     return expiratioDate!.difference(DateTime.now()).inDays + 1;
   }
+
+  factory CustomerEntity.fromMap(Map<String, dynamic> map) {
+    return CustomerEntity(
+      map["name"],
+      id: map["id"],
+      userImage: _getImage(map["userImagePath"]),
+      qrCodeImage: _getImage(map["qrCodeImagePath"]),
+      creationDate: DateTime.parse(map["creationDate"]),
+      lastPayment: DateTime.parse(map["lastPayment"]),
+      expiratioDate: DateTime.parse(map["expiratioDate"]),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      "id": id,
+      "name": name,
+      "userImagePath": _setImage(userImage!),
+      "qrCodeImagePath": _setImage(qrCodeImage!),
+      "creationDate": creationDate!.toIso8601String(),
+      "lastPayment": lastPayment!.toIso8601String(),
+      "expiratioDate": expiratioDate!.toIso8601String()
+    };
+  }
+
+  String _setImage(ImageProvider imageProvider) {
+    if (imageProvider is AssetImage) {
+      return "asset/${imageProvider.assetName}";
+    }
+
+    return "file/${(imageProvider as FileImage).file.path}";
+  }
+}
+
+///////////////////////////////////////////////////
+ImageProvider _getImage(String userImageInfo) {
+  if (userImageInfo.contains("asset/")) {
+    userImageInfo = userImageInfo.replaceFirst("asset/", "");
+    return AssetImage(userImageInfo);
+  }
+  userImageInfo = userImageInfo.replaceFirst("file/", "");
+  return FileImage(File(userImageInfo));
 }

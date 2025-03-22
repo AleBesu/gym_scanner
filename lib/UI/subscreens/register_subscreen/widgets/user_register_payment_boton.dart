@@ -70,17 +70,22 @@ class UserRegisterPaymentBoton extends ConsumerWidget {
   }
 }
 
+int _timeLastValue = 1;
 Future<void> _showPaymentForm(BuildContext context, WidgetRef ref,
     {required CustomerEntity entity}) async {
   TextEditingController timeController = TextEditingController(text: "1");
-  int timeValue = int.parse(timeController.text);
+
   String? timeTypeSelected = "Meses";
 
   Size size = MediaQuery.of(context).size;
   showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-            builder: (context, setState) => AlertDialog(
+      builder: (context) => StatefulBuilder(builder: (context, setState) {
+            int timeValue = int.parse(timeController.text.isNotEmpty
+                ? timeController.text
+                : 0.toString());
+
+            return AlertDialog(
               insetPadding: EdgeInsets.zero,
               title: const Text("Registrar tiempo"),
               content: Row(
@@ -91,6 +96,17 @@ Future<void> _showPaymentForm(BuildContext context, WidgetRef ref,
                           minWidth: size.width * 0.15,
                           maxHeight: size.height * 0.07),
                       child: TextFormField(
+                        onChanged: (value) {
+                          timeValue = int.parse(
+                              value.isNotEmpty ? value : 0.toString());
+
+                          if (_timeLastValue == 1 && timeValue != 1 ||
+                              _timeLastValue != 1 && timeValue == 1) {
+                            _timeLastValue = timeValue;
+
+                            setState(() {});
+                          }
+                        },
                         controller: timeController,
                         decoration: const InputDecoration(
                             border: OutlineInputBorder(
@@ -142,6 +158,6 @@ Future<void> _showPaymentForm(BuildContext context, WidgetRef ref,
                   )
                 ],
               ),
-            ),
-          ));
+            );
+          }));
 }

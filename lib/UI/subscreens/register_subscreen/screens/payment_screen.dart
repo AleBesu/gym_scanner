@@ -8,16 +8,22 @@ class PaymentScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final customerWidgetPro = ref.watch(customerListProvider);
+    final customerListPro = ref.watch(customerListProvider);
 
     return Scaffold(
       appBar: AppBar(),
-      body: ListView.builder(
-        itemCount: customerWidgetPro.length,
-        itemBuilder: (BuildContext context, int index) {
-          return UserRegisterPaymentBoton(entity: customerWidgetPro[index]);
-        },
-      ),
+      body: customerListPro.isEmpty
+          ? const Center(
+              child: Text(
+                "No hay usuario registrados",
+              ),
+            )
+          : ListView.builder(
+              itemCount: customerListPro.length,
+              itemBuilder: (BuildContext context, int index) {
+                return UserRegisterPaymentBoton(entity: customerListPro[index]);
+              },
+            ),
     );
   }
 }

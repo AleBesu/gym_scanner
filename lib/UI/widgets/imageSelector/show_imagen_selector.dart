@@ -12,16 +12,40 @@ Future<void> showImagenSelector(BuildContext context, WidgetRef ref) async {
   await showModalBottomSheet(
     context: context,
     builder: (context) {
-      return Container(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: IconButton(
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: IconButton(
+              onPressed: () async {
+                XFile? image =
+                    await picker.pickImage(source: ImageSource.camera);
+
+                if (image != null) {
+                  final imageCroped = await ImageCropper().cropImage(
+                      sourcePath: image.path,
+                      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1));
+
+                  if (imageCroped != null) {
+                    ref.read(imageSelectedProvider.notifier).state =
+                        FileImage(File(imageCroped.path));
+                    Navigator.pop(context);
+                  }
+                }
+              },
+              icon: Icon(
+                Icons.photo_camera,
+                size: size.width * 0.1,
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(size.width * 0.05),
+            child: IconButton(
                 onPressed: () async {
                   XFile? image =
-                      await picker.pickImage(source: ImageSource.camera);
+                      await picker.pickImage(source: ImageSource.gallery);
 
                   if (image != null) {
                     final imageCroped = await ImageCropper().cropImage(
@@ -32,44 +56,17 @@ Future<void> showImagenSelector(BuildContext context, WidgetRef ref) async {
                     if (imageCroped != null) {
                       ref.read(imageSelectedProvider.notifier).state =
                           FileImage(File(imageCroped.path));
+                      // ignore: use_build_context_synchronously
                       Navigator.pop(context);
                     }
                   }
                 },
                 icon: Icon(
-                  Icons.photo_camera,
+                  Icons.collections,
                   size: size.width * 0.1,
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(size.width * 0.05),
-              child: IconButton(
-                  onPressed: () async {
-                    XFile? image =
-                        await picker.pickImage(source: ImageSource.gallery);
-
-                    if (image != null) {
-                      final imageCroped = await ImageCropper().cropImage(
-                          sourcePath: image.path,
-                          aspectRatio:
-                              const CropAspectRatio(ratioX: 1, ratioY: 1));
-
-                      if (imageCroped != null) {
-                        ref.read(imageSelectedProvider.notifier).state =
-                            FileImage(File(imageCroped.path));
-                        // ignore: use_build_context_synchronously
-                        Navigator.pop(context);
-                      }
-                    }
-                  },
-                  icon: Icon(
-                    Icons.collections,
-                    size: size.width * 0.1,
-                  )),
-            ),
-          ],
-        ),
+                )),
+          ),
+        ],
       );
     },
   );

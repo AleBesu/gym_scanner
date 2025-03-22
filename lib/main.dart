@@ -1,8 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/main_screen.dart';
-import 'package:sqflite/sqflite.dart';
 
 void main() => runApp(const ProviderScope(child: MyApp()));
 

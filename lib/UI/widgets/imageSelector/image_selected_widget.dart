@@ -32,7 +32,7 @@ class ImageSelectedWidget extends ConsumerWidget {
                 color: Colors.grey,
                 width: size.width * 0.12,
                 height: size.width * 0.12,
-                child: Icon(Icons.image),
+                child: const Icon(Icons.image),
               ),
             ),
           ),

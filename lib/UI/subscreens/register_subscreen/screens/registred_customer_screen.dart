@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/Providers/customers_list_provider.dart';
 import 'package:gym_scanner/UI/widgets/alert_dialogs/show_image.dart';
+import 'package:gym_scanner/core/Date/date_time_format.dart';
 import 'package:gym_scanner/domain/customer_entity.dart';
+import 'package:share_plus/share_plus.dart';
 
 class RegistredCustomerScreen extends ConsumerWidget {
   const RegistredCustomerScreen({super.key});
@@ -10,12 +12,12 @@ class RegistredCustomerScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final customersList = ref.watch(customerListProvider);
-    Size size = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: AppBar(),
-      body: customersList.length < 1
-          ? Center(
-              child: Text(
+      body: customersList.isEmpty
+          ? const Center(
+              child: const Text(
                 "No hay usuario registrados",
               ),
             )
@@ -64,10 +66,10 @@ class _RegisterCustomerWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Días restantes : ${entity.expiratioDate!.difference(DateTime.now()).inDays + 1}",
+                    "Días restantes: ${entity.availablesDays}",
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  Text("Desde: ${entity.availablesDays}")
+                  Text("Desde: ${dateTimeFormat(entity.creationDate!)}")
                 ],
               ),
             ),
@@ -88,10 +90,30 @@ class _RegisterCustomerWidget extends StatelessWidget {
                   size: size.height * 0.07,
                 ),
               ),
-              const InkWell(
-                child: Icon(
-                  Icons.download,
-                ),
+              SizedBox(
+                height: size.height * 0.007,
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  InkWell(
+                    onTap: () async {
+                      await Share.shareXFiles(
+                          [XFile((entity.qrCodeImage as FileImage).file.path)]);
+                    },
+                    child: const Icon(
+                      Icons.share,
+                    ),
+                  ),
+                  const Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: InkWell(
+                      child: Icon(
+                        Icons.download,
+                      ),
+                    ),
+                  ),
+                ],
               )
             ],
           ),

@@ -19,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Gym App"),
+        title: const Text("Gym App"),
       ),
       body: currentIndex <= bodyList.length - 1
           ? bodyList[currentIndex]

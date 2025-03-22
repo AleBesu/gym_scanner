@@ -1,27 +1,82 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gym_scanner/UI/Providers/current_customer_provider.dart';
+
+import 'package:gym_scanner/UI/Providers/customers_list_provider.dart';
+import 'package:gym_scanner/core/encriptation/get_encripted_value.dart';
+
+import 'package:just_audio/just_audio.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-class ScannerCameraWidget extends StatefulWidget {
+final MobileScannerController cameraController = MobileScannerController();
+
+class ScannerCameraWidget extends ConsumerStatefulWidget {
   const ScannerCameraWidget({super.key});
 
   @override
-  State<ScannerCameraWidget> createState() => _ScannerCameraWidgetState();
+  ConsumerState<ScannerCameraWidget> createState() =>
+      _ScannerCameraWidgetState();
 }
 
-class _ScannerCameraWidgetState extends State<ScannerCameraWidget> {
+class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
+  final audioplayer = AudioPlayer();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   bool isVisibleBottons = false;
   bool isOnCamera = false;
-  MobileScannerController _controller1 = MobileScannerController();
+  bool qrSelected = false;
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+
     if (isOnCamera) {
       return Expanded(
           child: Stack(
         children: [
           GestureDetector(
               child: MobileScanner(
-            controller: _controller1,
+            onDetect: (
+              barcodes,
+            ) async {
+              if (!qrSelected) {
+                qrSelected = true;
+
+                final qrSeleccionado = barcodes.barcodes[0];
+
+                if (ref.watch(customerListProvider).map(
+                  (e) {
+                    return e.id;
+                  },
+                ).contains(int.parse(getEncriptedValue(
+                  qrSeleccionado.rawValue.toString(),
+                )))) {
+                  ref.read(currentCustomerProvider.notifier).state =
+                      ref.watch(customerListProvider).firstWhere(
+                    (element) {
+                      return element.id ==
+                          int.parse(getEncriptedValue(
+                            qrSeleccionado.rawValue.toString(),
+                          ));
+                    },
+                  );
+                  await audioplayer.setAsset("assets/sounds/successfull.mp3");
+                  await audioplayer.play();
+                  await Future.delayed(const Duration(seconds: 1));
+                } else {
+                  await audioplayer.setAsset("assets/sounds/sound_error.mp3");
+                  await audioplayer.play();
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text("Error!usuario desconocido")));
+                }
+                qrSelected = false;
+              }
+            },
+            controller: cameraController,
           )),
           Align(
             alignment: Alignment.topRight,
@@ -29,38 +84,40 @@ class _ScannerCameraWidgetState extends State<ScannerCameraWidget> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: InkWell(
                     onTap: () {
                       setState(() {
                         isOnCamera = false;
                       });
                     },
-                    child: CircleAvatar(
+                    child: const CircleAvatar(
                       backgroundColor: Colors.grey,
                       child: Icon(Icons.power_settings_new),
                     ),
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: InkWell(
                     onTap: () async {
-                      await _controller1.stop();
+                      await cameraController.stop();
                       await Navigator.push(
+                          // ignore: use_build_context_synchronously
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ScannerCameraFullScreen(),
+                            builder: (context) =>
+                                const ScannerCameraFullScreen(),
                           ));
 
-                      await _controller1.start();
+                      await cameraController.start();
 
                       setState(() {
                         isOnCamera = false;
                       });
 
                       Future.delayed(
-                        Duration(seconds: 1),
+                        const Duration(seconds: 1),
                         () {
                           setState(() {
                             isOnCamera = true;
@@ -70,7 +127,7 @@ class _ScannerCameraWidgetState extends State<ScannerCameraWidget> {
 
                       //I dont now why this works  but works and that is the important,technical debt for you
                     },
-                    child: CircleAvatar(
+                    child: const CircleAvatar(
                       backgroundColor: Colors.grey,
                       child: Icon(Icons.fullscreen),
                     ),
@@ -94,7 +151,7 @@ class _ScannerCameraWidgetState extends State<ScannerCameraWidget> {
               onTap: () {
                 setState(() {
                   isOnCamera = true;
-                  _controller1.start();
+                  cameraController.start();
                 });
               },
               child: Icon(
@@ -114,7 +171,7 @@ class _ScannerCameraWidgetState extends State<ScannerCameraWidget> {
 }
 
 class ScannerCameraFullScreen extends StatefulWidget {
-  ScannerCameraFullScreen();
+  const ScannerCameraFullScreen({super.key});
 
   @override
   State<ScannerCameraFullScreen> createState() =>
@@ -122,21 +179,18 @@ class ScannerCameraFullScreen extends StatefulWidget {
 }
 
 class _ScannerCameraFullScreenState extends State<ScannerCameraFullScreen> {
-  MobileScannerController _controller = MobileScannerController();
+  final MobileScannerController _controller = MobileScannerController();
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _controller.start();
   }
 
   @override
   void dispose() async {
-    // TODO: implement dispose
-
     super.dispose();
     _controller.dispose();
-    Future.delayed(Duration(seconds: 3));
+    Future.delayed(const Duration(seconds: 3));
   }
 
   @override

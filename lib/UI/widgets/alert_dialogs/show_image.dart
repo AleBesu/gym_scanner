@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-void showImage(BuildContext context, {required ImageProvider image}) {
+void showImage(BuildContext context,
+    {required ImageProvider image, bool background = false}) {
   showDialog(
     context: context,
     builder: (context) {

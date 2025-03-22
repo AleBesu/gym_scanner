@@ -24,12 +24,14 @@ class _SubScreenRegistersState extends State<SubScreenRegisters> {
           child: UserInfoWidget(),
         ),
         OptionButton(
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              cameraController.stop();
+              await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PaymentScreen(),
+                    builder: (context) => const PaymentScreen(),
                   ));
+              cameraController.start();
             },
             backGroundColor: Colors.green,
             text: "Registrar Pago",
@@ -39,20 +41,24 @@ class _SubScreenRegistersState extends State<SubScreenRegisters> {
           text: "Registrar Cliente",
           icon: Icons.person_add,
           onPressed: () {
+            cameraController.stop();
             Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => CustomerRegisterScreen(),
                 ));
+            cameraController.start();
           },
         ),
         OptionButton(
             onPressed: () {
+              cameraController.stop();
               Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => const RegistredCustomerScreen(),
                   ));
+              cameraController.start();
             },
             backGroundColor: const Color(0xFF6C757D),
             text: "Clientes registrados",

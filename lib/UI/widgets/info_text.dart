@@ -11,7 +11,8 @@ class InfoText extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: RichText(
         text: TextSpan(text: "$info: ", children: [
-          TextSpan(text: value, style: TextStyle(fontWeight: FontWeight.bold))
+          TextSpan(
+              text: value, style: const TextStyle(fontWeight: FontWeight.bold))
         ]),
       ),
     );
