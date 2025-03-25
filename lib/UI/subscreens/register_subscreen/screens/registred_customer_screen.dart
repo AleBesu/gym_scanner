@@ -27,30 +27,28 @@ class RegistredCustomerScreen extends ConsumerWidget {
           actions: [
             if (ref.read(isSelectingModeProvider))
               Padding(
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: InkWell(
                     onTap: () async {
-                      await showDialog(
+                      showDialog(
                         context: context,
                         builder: (context) {
                           return AlertDialog(
                             title: Text(
                               "Alerta",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            content: Text(
-                              "Desea eliminar ${selectedElements.length} usuarios?",
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             actions: [
                               TextButton(
                                   onPressed: () {
                                     Navigator.pop(context);
                                   },
-                                  child: Text(
+                                  child: const Text(
                                     "Cancelar",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.red),
+                                    style: const TextStyle(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold),
                                   )),
                               TextButton(
                                   onPressed: () async {
@@ -71,19 +69,21 @@ class RegistredCustomerScreen extends ConsumerWidget {
                                         .read(selectedElementIndexListProvider
                                             .notifier)
                                         .state = [];
+
+                                    Navigator.pop(context);
                                   },
-                                  child: Text(
+                                  child: const Text(
                                     "Confirmar",
                                     style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.red),
-                                  ))
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold),
+                                  )),
                             ],
                           );
                         },
                       );
                     },
-                    child: Icon(Icons.delete)),
+                    child: const Icon(Icons.delete)),
               )
           ],
         ),

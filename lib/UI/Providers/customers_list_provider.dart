@@ -58,7 +58,7 @@ class _CustomersProvider extends StateNotifier<List<CustomerEntity>> {
   Future<void> removeForID(List<int> elementsToRemoveID) async {
     final db = await localDataBase;
 
-    db.deleteElements(elementsToRemoveID);
+    await db.deleteElements(elementsToRemoveID);
     loadInfoFromDatabase();
   }
 }
