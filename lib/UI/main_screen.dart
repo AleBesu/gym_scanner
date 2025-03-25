@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_scanner/UI/subscreens/finance_subscreen/subscreen_finance.dart';
 import 'dart:ui' as ui;
 import 'package:gym_scanner/UI/subscreens/register_subscreen/sub_screen_registers_(scanner).dart';
 
@@ -13,13 +14,13 @@ class _MainScreenState extends State<MainScreen> {
   int currentIndex = 0;
   String texto = "valor vacio";
 
-  List<Widget> bodyList = [const SubScreenRegisters()];
+  List<Widget> bodyList = [const SubScreenRegisters(), SubScreenFinance()];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Gym App"),
+        title: Text("Gym App"),
       ),
       body: currentIndex <= bodyList.length - 1
           ? bodyList[currentIndex]

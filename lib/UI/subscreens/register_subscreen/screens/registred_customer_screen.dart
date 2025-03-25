@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/Providers/customers_list_provider.dart';
 import 'package:gym_scanner/UI/widgets/alert_dialogs/show_image.dart';
+import 'package:gym_scanner/UI/widgets/selecter/selectable_elements.dart';
 import 'package:gym_scanner/core/Date/date_time_format.dart';
+import 'package:gym_scanner/core/list_where_index.dart';
 import 'package:gym_scanner/domain/customer_entity.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -12,21 +14,94 @@ class RegistredCustomerScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final customersList = ref.watch(customerListProvider);
+    final selectedElements = ref.watch(selectedElementIndexListProvider);
+    return PopScope(
+      canPop: !ref.watch(isSelectingModeProvider),
+      onPopInvoked: (didPop) {
+        if (ref.watch(isSelectingModeProvider)) {
+          ref.read(selectedElementIndexListProvider.notifier).state = [];
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          actions: [
+            if (ref.read(isSelectingModeProvider))
+              Padding(
+                padding: EdgeInsets.all(8.0),
+                child: InkWell(
+                    onTap: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text(
+                              "Alerta",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            content: Text(
+                              "Desea eliminar ${selectedElements.length} usuarios?",
+                            ),
+                            actions: [
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    "Cancelar",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.red),
+                                  )),
+                              TextButton(
+                                  onPressed: () async {
+                                    await ref
+                                        .read(customerListProvider.notifier)
+                                        .removeForID(listWhereIndex(
+                                                customersList,
+                                                indexList: selectedElements)
+                                            .map(
+                                          (e) {
+                                            final entity = e as CustomerEntity;
 
-    return Scaffold(
-      appBar: AppBar(),
-      body: customersList.isEmpty
-          ? const Center(
-              child: const Text(
-                "No hay usuario registrados",
+                                            return entity.id!;
+                                          },
+                                        ).toList());
+
+                                    ref
+                                        .read(selectedElementIndexListProvider
+                                            .notifier)
+                                        .state = [];
+                                  },
+                                  child: Text(
+                                    "Confirmar",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.red),
+                                  ))
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    child: Icon(Icons.delete)),
+              )
+          ],
+        ),
+        body: customersList.isEmpty
+            ? const Center(
+                child: const Text(
+                  "No hay usuario registrados",
+                ),
+              )
+            : ListView.builder(
+                itemCount: customersList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return SelectableWidget(
+                      index: index,
+                      child: _RegisterCustomerWidget(customersList[index]));
+                },
               ),
-            )
-          : ListView.builder(
-              itemCount: customersList.length,
-              itemBuilder: (BuildContext context, int index) {
-                return _RegisterCustomerWidget(customersList[index]);
-              },
-            ),
+      ),
     );
   }
 }
@@ -38,6 +113,7 @@ class _RegisterCustomerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+
     return SizedBox(
       height: size.height * 0.15,
       child: Card(

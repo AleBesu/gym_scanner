@@ -27,6 +27,8 @@ class CustomerRegisterScreen extends ConsumerWidget {
                     "daysController cannot be null or isEmpty");
                 if (_formKey.currentState!.validate()) {
                   ref.read(customerListProvider.notifier).add(CustomerEntity(
+                        creationDate: DateTime.now(),
+                        lastPayment: DateTime.now(),
                         userImage: imageSelectedPro,
                         nameController.text,
                         expiratioDate: DateTime.now().add(

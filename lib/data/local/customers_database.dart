@@ -37,4 +37,12 @@ class CustomersDatabase {
 
     db.insert("customers", entity.toMap());
   }
+
+  Future<void> deleteElements(List<int> elementsToDeleteID) async {
+    final db = await database;
+
+    for (int id in elementsToDeleteID) {
+      await db.delete(_table, where: "id = ?", whereArgs: [id]);
+    }
+  }
 }

@@ -86,7 +86,7 @@ class UserInfoWidget extends ConsumerWidget {
                         ),
                         InfoText(
                           info: "Dias Restantes",
-                          // value: entity.availablesDays.toString(),
+                          value: entity.availablesDays.toString(),
                         ),
                       ],
                     ),

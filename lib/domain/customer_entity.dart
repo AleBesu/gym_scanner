@@ -17,9 +17,7 @@ class CustomerEntity {
       this.id,
       this.lastPayment,
       this.creationDate,
-      this.expiratioDate}) {
-    lastPayment = creationDate = DateTime.now();
-  }
+      this.expiratioDate}) {}
 
   int get availablesDays {
     return expiratioDate!.difference(DateTime.now()).inDays + 1;
