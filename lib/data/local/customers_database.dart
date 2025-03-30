@@ -3,7 +3,7 @@ import 'package:sqflite/sqflite.dart';
 
 class CustomersDatabase {
   static CustomersDatabase instance = CustomersDatabase._private();
-  String _table = "customers";
+  final String _table = "customers";
   CustomersDatabase._private();
   static Database? _database;
 
@@ -20,7 +20,7 @@ class CustomersDatabase {
       version: 1,
       onCreate: (db, version) {
         db.execute(
-          "CREATE TABLE $_table (id INTEGER PRIMARY KEY,name TEXT,userImagePath TEXT,qrCodeImagePath TEXT ,creationDate TEXT,lastPayment TEXT,expiratioDate TEXT)",
+          "CREATE TABLE $_table (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT,userImagePath TEXT,qrCodeImagePath TEXT ,creationDate TEXT,lastPayment TEXT,expiratioDate TEXT)",
         );
       },
     );
@@ -29,13 +29,16 @@ class CustomersDatabase {
   Future<List<Map<String, dynamic>>> getElements() async {
     final db = await database;
     // db.delete(_table);
-    return db.query("customers");
+    return await db.query(
+      "customers",
+      orderBy: "id DESC",
+    );
   }
 
   Future<void> addCustomer(CustomerEntity entity) async {
     final db = await database;
 
-    db.insert("customers", entity.toMap());
+    await db.insert("customers", entity.toMap());
   }
 
   Future<void> deleteElements(List<int> elementsToDeleteID) async {

@@ -8,6 +8,10 @@ import 'package:gym_scanner/core/encriptation/get_encripted_value.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+final isCameraUsingProvider = StateProvider.autoDispose<bool>(
+  (ref) => false,
+);
+
 final MobileScannerController cameraController = MobileScannerController();
 
 class ScannerCameraWidget extends ConsumerStatefulWidget {
@@ -34,7 +38,7 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
-    if (isOnCamera) {
+    if (ref.watch(isCameraUsingProvider)) {
       return Expanded(
           child: Stack(
         children: [
@@ -79,61 +83,21 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
             controller: cameraController,
           )),
           Align(
-            alignment: Alignment.topRight,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        isOnCamera = false;
-                      });
-                    },
-                    child: const CircleAvatar(
-                      backgroundColor: Colors.grey,
-                      child: Icon(Icons.power_settings_new),
-                    ),
-                  ),
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    ref.read(isCameraUsingProvider.notifier).state = false;
+                    // isOnCamera = false;
+                  });
+                },
+                child: const CircleAvatar(
+                  backgroundColor: Colors.grey,
+                  child: Icon(Icons.power_settings_new),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: InkWell(
-                    onTap: () async {
-                      await cameraController.stop();
-                      await Navigator.push(
-                          // ignore: use_build_context_synchronously
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const ScannerCameraFullScreen(),
-                          ));
-
-                      await cameraController.start();
-
-                      setState(() {
-                        isOnCamera = false;
-                      });
-
-                      Future.delayed(
-                        const Duration(seconds: 1),
-                        () {
-                          setState(() {
-                            isOnCamera = true;
-                          });
-                        },
-                      );
-
-                      //I dont now why this works  but works and that is the important,technical debt for you
-                    },
-                    child: const CircleAvatar(
-                      backgroundColor: Colors.grey,
-                      child: Icon(Icons.fullscreen),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           )
         ],
@@ -150,7 +114,8 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
             InkWell(
               onTap: () {
                 setState(() {
-                  isOnCamera = true;
+                  // isOnCamera = true;
+                  ref.read(isCameraUsingProvider.notifier).state = true;
                   cameraController.start();
                 });
               },

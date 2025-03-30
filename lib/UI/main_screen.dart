@@ -1,27 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/subscreens/finance_subscreen/subscreen_finance.dart';
 import 'dart:ui' as ui;
 import 'package:gym_scanner/UI/subscreens/register_subscreen/sub_screen_registers_(scanner).dart';
 
-class MainScreen extends StatefulWidget {
+class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  ConsumerState<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends ConsumerState<MainScreen> {
+  
   int currentIndex = 0;
   String texto = "valor vacio";
 
-  List<Widget> bodyList = [const SubScreenRegisters(), SubScreenFinance()];
-
+  List<Widget> bodyList = [const SubScreenRegisters(), const SubScreenFinance()];
+  List<AppBar> appBarList = [
+    AppBar(),
+    AppBar(),
+    AppBar(
+      actions: [InkWell(
+         onTap: () {
+           
+         },
+        
+        child: const Icon(Icons.dark_mode))],
+    )
+  ];
   @override
   Widget build(BuildContext context) {
+       
+
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Gym App"),
-      ),
+      appBar: appBarList[currentIndex],
       body: currentIndex <= bodyList.length - 1
           ? bodyList[currentIndex]
           : const Center(

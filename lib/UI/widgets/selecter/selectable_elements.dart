@@ -36,44 +36,56 @@ class SelectableWidget extends ConsumerWidget {
       padding: EdgeInsets.symmetric(vertical: size.height * 0.005),
       child: Stack(
         children: [
-          child,
+          InkWell(
+              onLongPress: () {
+                ref.read(isSelectingModeProvider.notifier).state = true;
+                ref.read(selectedElementIndexListProvider.notifier).update(
+                  (state) {
+                    return {...state, index}.toList();
+                  },
+                );
+              },
+              child: child),
           if (isSelected)
             Positioned.fill(
               child: Container(
                 color: Colors.red.withOpacity(0.7),
               ),
             ),
-          Positioned.fill(
-              child: InkWell(
-            onTap: isSelected && ref.watch(isSelectingModeProvider)
-                ? () {
-                    ref.read(selectedElementIndexListProvider.notifier).update(
-                      (state) {
-                        final List<int> newList = List.from(state);
-                        newList.remove(index);
-                        return newList;
-                      },
-                    );
-                  }
-                : ref.watch(isSelectingModeProvider) && !isSelected
-                    ? () {
-                        ref
-                            .read(selectedElementIndexListProvider.notifier)
-                            .update(
-                          (state) {
-                            return {...state, index}.toList();
-                          },
-                        );
-                      }
-                    : null,
-            onLongPress: () {
-              ref.read(selectedElementIndexListProvider.notifier).update(
-                (state) {
-                  return {...state, index}.toList();
-                },
-              );
-            },
-          )),
+          if (ref.watch(isSelectingModeProvider))
+            Positioned.fill(
+                child: InkWell(
+              onTap: isSelected && ref.watch(isSelectingModeProvider)
+                  ? () {
+                      ref
+                          .read(selectedElementIndexListProvider.notifier)
+                          .update(
+                        (state) {
+                          final List<int> newList = List.from(state);
+                          newList.remove(index);
+                          return newList;
+                        },
+                      );
+                    }
+                  : ref.watch(isSelectingModeProvider) && !isSelected
+                      ? () {
+                          ref
+                              .read(selectedElementIndexListProvider.notifier)
+                              .update(
+                            (state) {
+                              return {...state, index}.toList();
+                            },
+                          );
+                        }
+                      : null,
+              onLongPress: () {
+                ref.read(selectedElementIndexListProvider.notifier).update(
+                  (state) {
+                    return {...state, index}.toList();
+                  },
+                );
+              },
+            )),
         ],
       ),
     );

@@ -22,8 +22,7 @@ class CustomerRegisterScreen extends ConsumerWidget {
         actions: [
           IconButton(
               onPressed: () async {
-                assert(
-                    daysController.text != null || daysController.text.isEmpty,
+                assert(daysController.text.isEmpty,
                     "daysController cannot be null or isEmpty");
                 if (_formKey.currentState!.validate()) {
                   ref.read(customerListProvider.notifier).add(CustomerEntity(
@@ -31,8 +30,8 @@ class CustomerRegisterScreen extends ConsumerWidget {
                         lastPayment: DateTime.now(),
                         userImage: imageSelectedPro,
                         nameController.text,
-                        expiratioDate: DateTime.now().add(
-                            Duration(days: int.tryParse(daysController.text)!)),
+                        expiratioDate: DateTime.now().add(Duration(
+                            days: int.tryParse(daysController.text) ?? 0)),
                       ));
 
                   Navigator.pop(context);

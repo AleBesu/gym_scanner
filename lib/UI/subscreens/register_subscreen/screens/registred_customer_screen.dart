@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/Providers/customers_list_provider.dart';
-import 'package:gym_scanner/UI/widgets/alert_dialogs/show_image.dart';
+import 'package:gym_scanner/UI/widgets/dialogs/show_image.dart';
 import 'package:gym_scanner/UI/widgets/selecter/selectable_elements.dart';
 import 'package:gym_scanner/core/Date/date_time_format.dart';
 import 'package:gym_scanner/core/list_where_index.dart';
@@ -13,6 +13,7 @@ class RegistredCustomerScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    Size size = MediaQuery.of(context).size;
     final customersList = ref.watch(customerListProvider);
     final selectedElements = ref.watch(selectedElementIndexListProvider);
     return PopScope(
@@ -25,7 +26,40 @@ class RegistredCustomerScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           actions: [
-            if (ref.read(isSelectingModeProvider))
+            if (ref.watch(isSelectingModeProvider))
+              selectedElements.length < customersList.length
+                  ? Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: InkWell(
+                          onTap: () {
+                            ref
+                                .read(selectedElementIndexListProvider.notifier)
+                                .update(
+                              (state) {
+                                return List.generate(
+                                  customersList.length,
+                                  (index) => index,
+                                );
+                              },
+                            );
+                          },
+                          child: const Icon(Icons.done_all)),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: InkWell(
+                          onTap: () {
+                            ref
+                                .read(selectedElementIndexListProvider.notifier)
+                                .update(
+                              (state) {
+                                return [];
+                              },
+                            );
+                          },
+                          child: const Icon(Icons.remove_done)),
+                    ),
+            if (ref.watch(isSelectingModeProvider))
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: InkWell(
@@ -34,11 +68,16 @@ class RegistredCustomerScreen extends ConsumerWidget {
                         context: context,
                         builder: (context) {
                           return AlertDialog(
-                            title: Text(
+                            title: const Text(
                               "Alerta",
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: size.height * 0.01,
+                              horizontal: size.width * 0.06,
+                            ),
+                            content: Text(
+                                "Desea eliminar ${selectedElements.length} usuarios?"),
                             actions: [
                               TextButton(
                                   onPressed: () {
@@ -46,7 +85,7 @@ class RegistredCustomerScreen extends ConsumerWidget {
                                   },
                                   child: const Text(
                                     "Cancelar",
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         color: Colors.red,
                                         fontWeight: FontWeight.bold),
                                   )),
@@ -84,15 +123,11 @@ class RegistredCustomerScreen extends ConsumerWidget {
                       );
                     },
                     child: const Icon(Icons.delete)),
-              )
+              ),
           ],
         ),
         body: customersList.isEmpty
-            ? const Center(
-                child: const Text(
-                  "No hay usuario registrados",
-                ),
-              )
+            ? const Center(child: const CircularProgressIndicator())
             : ListView.builder(
                 itemCount: customersList.length,
                 itemBuilder: (BuildContext context, int index) {

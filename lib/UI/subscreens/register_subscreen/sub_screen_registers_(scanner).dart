@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/subscreens/register_subscreen/screens/payment_screen.dart';
 import 'package:gym_scanner/UI/subscreens/register_subscreen/screens/registred_customer_screen.dart';
 import 'package:gym_scanner/UI/subscreens/register_subscreen/widgets/scanner_camera_widget.dart';
@@ -6,19 +7,21 @@ import 'package:gym_scanner/UI/subscreens/register_subscreen/widgets/user_infor.
 import 'screens/register_customer_screen.dart';
 import '../../widgets/opcion_botton.dart';
 
-class SubScreenRegisters extends StatefulWidget {
+class SubScreenRegisters extends ConsumerStatefulWidget {
   const SubScreenRegisters({super.key});
 
   @override
-  State<SubScreenRegisters> createState() => _SubScreenRegistersState();
+  ConsumerState<SubScreenRegisters> createState() => _SubScreenRegistersState();
 }
 
-class _SubScreenRegistersState extends State<SubScreenRegisters> {
+class _SubScreenRegistersState extends ConsumerState<SubScreenRegisters> {
   @override
   Widget build(BuildContext context) {
+    bool isCameraUsingPro = ref.watch(isCameraUsingProvider);
+
     return Column(
       children: [
-        const ScannerCameraWidget(),
+        ScannerCameraWidget(),
         const Padding(
           padding: EdgeInsets.only(bottom: 25),
           child: UserInfoWidget(),
@@ -26,39 +29,49 @@ class _SubScreenRegistersState extends State<SubScreenRegisters> {
         OptionButton(
             onPressed: () async {
               cameraController.stop();
+              ref.read(isCameraUsingProvider.notifier).state = false;
               await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => const PaymentScreen(),
                   ));
-              cameraController.start();
+              if (isCameraUsingPro) {
+                cameraController.start();
+              }
             },
-            backGroundColor: Colors.green,
+            backGroundColor: Colors.red,
             text: "Registrar Pago",
             icon: Icons.loyalty),
         OptionButton(
           backGroundColor: const Color(0xFF6C757D),
           text: "Registrar Cliente",
           icon: Icons.person_add,
-          onPressed: () {
+          onPressed: () async {
             cameraController.stop();
-            Navigator.push(
+            ref.read(isCameraUsingProvider.notifier).state = false;
+            await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => CustomerRegisterScreen(),
                 ));
-            cameraController.start();
+
+            if (isCameraUsingPro) {
+              cameraController.start();
+            }
           },
         ),
         OptionButton(
             onPressed: () {
               cameraController.stop();
+              ref.read(isCameraUsingProvider.notifier).state = false;
               Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => const RegistredCustomerScreen(),
                   ));
-              cameraController.start();
+              if (isCameraUsingPro) {
+                cameraController.start();
+              }
             },
             backGroundColor: const Color(0xFF6C757D),
             text: "Clientes registrados",

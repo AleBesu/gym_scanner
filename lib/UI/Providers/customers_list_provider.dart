@@ -32,7 +32,6 @@ class _CustomersProvider extends StateNotifier<List<CustomerEntity>> {
   void add(CustomerEntity addedCustomer) async {
     addedCustomer.creationDate = DateTime.now();
     addedCustomer.lastPayment = DateTime.now();
-    addedCustomer.id = Random().nextInt(900000);
 
     addedCustomer.qrCodeImage = await generateUserQrImageFile(addedCustomer);
 
