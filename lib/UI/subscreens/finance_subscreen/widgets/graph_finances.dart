@@ -67,17 +67,30 @@ class _GraphFinancesState extends ConsumerState<GraphFinances> {
           ),
         ),
         Expanded(
-          child: LineChart(
-              curve: Curves.linear,
-              ConfigsGraphs.getConfig(context,
-                  timeInterval: timeTypeSelectedList[currectTimeInverval],
-                  coordenatesValuesList: ref
-                      .read(casualUserPaymentProvider.notifier)
-                      .getRegistersCoordenates()
-                      .map(
-                        (e) => FlSpot(e.x, e.y),
-                      )
-                      .toList())),
+          child: FutureBuilder(
+              future: ref
+                  .read(casualUserPaymentProvider.notifier)
+                  .getRegistersCoordenates()
+                  .then(
+                    (value) => value
+                        .map(
+                          (e) => FlSpot(e.x, e.y),
+                        )
+                        .toList(),
+                  ),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.none) {
+                  return Text("Error al cargar datos");
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                }
+                return LineChart(
+                    curve: Curves.linear,
+                    ConfigsGraphs.getConfig(context,
+                        timeInterval: timeTypeSelectedList[currectTimeInverval],
+                        coordenatesValuesList: snapshot.data!));
+              }),
         ),
       ],
     );

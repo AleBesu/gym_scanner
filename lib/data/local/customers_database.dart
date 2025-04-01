@@ -1,9 +1,14 @@
+import 'dart:convert';
+
+import 'package:gym_scanner/domain/casual_user.dart';
 import 'package:gym_scanner/domain/customer_entity.dart';
 import 'package:sqflite/sqflite.dart';
 
 class CustomersDatabase {
   static CustomersDatabase instance = CustomersDatabase._private();
   final String _table = "customers";
+  final String _casualsCustomersStatisticsTable = "casualsCustomersStatistics";
+
   CustomersDatabase._private();
   static Database? _database;
 
@@ -22,11 +27,19 @@ class CustomersDatabase {
         db.execute(
           "CREATE TABLE $_table (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT,userImagePath TEXT,qrCodeImagePath TEXT ,creationDate TEXT,lastPayment TEXT,expiratioDate TEXT)",
         );
+
+        db.execute('''
+      CREATE TABLE $_casualsCustomersStatisticsTable( id INTEGER PRIMARY KEY AUTOINCREMENT ,startTimeDate TEXT,casualUserListJSON TEXT)
+    
+
+
+
+''');
       },
     );
   }
 
-  Future<List<Map<String, dynamic>>> getElements() async {
+  Future<List<Map<String, dynamic>>> getCustomersList() async {
     final db = await database;
     // db.delete(_table);
     return await db.query(
@@ -41,11 +54,99 @@ class CustomersDatabase {
     await db.insert("customers", entity.toMap());
   }
 
-  Future<void> deleteElements(List<int> elementsToDeleteID) async {
+  Future<void> deleteCustomer(List<int> elementsToDeleteID) async {
     final db = await database;
 
     for (int id in elementsToDeleteID) {
       await db.delete(_table, where: "id = ?", whereArgs: [id]);
     }
+  }
+
+  Future<List<List<CasualUser>>> getCasualUserStatitics() async {
+    print("Función ejecutada");
+    final db = await database;
+
+    await _fillDaysWithOutRegister();
+
+    final casualUserTable = await db.query(
+      _casualsCustomersStatisticsTable,
+    );
+    List<String> diaryStaticsUserList = casualUserTable
+        .map(
+          (e) => e["casualUserListJSON"].toString(),
+        )
+        .toList();
+
+    return diaryStaticsUserList.map(
+      (dayList) {
+        return (jsonDecode(dayList) as List)
+            .map(
+              (CasualUserJson) => CasualUser.fromJson(CasualUserJson),
+            )
+            .toList();
+      },
+    ).toList();
+  }
+
+  Future<void> addCasualUser(CasualUser newCasualUser) async {
+    final db = await database;
+
+    final daysList = await getCasualUserStatitics();
+    List<CasualUser> lastDay = daysList.last;
+    lastDay.add(newCasualUser);
+    final lastDayMaps = lastDay
+        .map(
+          (e) => e.toMap(),
+        )
+        .toList();
+
+    List<int> idList = await _getDaysIDList();
+
+    db.update(_casualsCustomersStatisticsTable,
+        {"casualUserListJSON": jsonEncode(lastDayMaps)},
+        where: "id = ?", whereArgs: [idList.last]);
+  }
+
+  Future<void> _fillDaysWithOutRegister() async {
+    final db = await database;
+
+    final casualUserTable = await db.query(
+      _casualsCustomersStatisticsTable,
+    );
+    print(DateTime.now()
+        .difference(
+            DateTime.parse(casualUserTable[0]["startTimeDate"].toString()))
+        .inDays);
+    if (casualUserTable.length <
+        DateTime.now()
+            .difference(
+                DateTime.parse(casualUserTable[0]["startTimeDate"].toString()))
+            .inDays) {
+      ///////////////////////////////////
+      int diasSinRegistrar = DateTime.now()
+              .difference(DateTime.parse(
+                  casualUserTable[0]["startTimeDate"].toString()))
+              .inDays -
+          casualUserTable.length +
+          1;
+
+      for (int i = 0; i < diasSinRegistrar; i++) {
+        await db.insert(_casualsCustomersStatisticsTable,
+            {"casualUserListJSON": jsonEncode([])});
+      }
+    }
+  }
+
+  Future<List<int>> _getDaysIDList() async {
+    final db = await database;
+    final casualUserTable = await db.query(
+      _casualsCustomersStatisticsTable,
+    );
+
+    return casualUserTable
+        .map(
+          (map) => map["id"] as int,
+        )
+        .toList();
   }
 }

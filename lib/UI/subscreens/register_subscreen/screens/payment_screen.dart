@@ -14,10 +14,19 @@ class PaymentScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(),
       body: customerListPro.isEmpty
-          ? const Center(
-              child: Text(
-                "No hay usuario registrados",
-              ),
+          ? FutureBuilder(
+              future: Future.delayed(const Duration(seconds: 5)),
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else {
+                  return const Center(
+                    child: Text(
+                      "No hay usuario registrados",
+                    ),
+                  );
+                }
+              },
             )
           : ListView.builder(
               itemCount: customerListPro.length,

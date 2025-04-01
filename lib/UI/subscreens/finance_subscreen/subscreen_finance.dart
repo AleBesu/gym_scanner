@@ -15,7 +15,7 @@ class SubScreenFinance extends StatelessWidget {
             child: SizedBox(
               width: size.width * 0.9,
               height: size.height * 0.35,
-              child: GraphFinances(),
+              child: const GraphFinances(),
             ),
           )
         ],

@@ -20,7 +20,7 @@ class _CustomersProvider extends StateNotifier<List<CustomerEntity>> {
   }
 
   Future<void> loadInfoFromDatabase() async {
-    final db = await localDataBase.getElements();
+    final db = await localDataBase.getCustomersList();
 
     state = db
         .map(
@@ -57,7 +57,7 @@ class _CustomersProvider extends StateNotifier<List<CustomerEntity>> {
   Future<void> removeForID(List<int> elementsToRemoveID) async {
     final db = await localDataBase;
 
-    await db.deleteElements(elementsToRemoveID);
+    await db.deleteCustomer(elementsToRemoveID);
     loadInfoFromDatabase();
   }
 }

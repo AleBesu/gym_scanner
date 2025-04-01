@@ -22,8 +22,6 @@ class CustomerRegisterScreen extends ConsumerWidget {
         actions: [
           IconButton(
               onPressed: () async {
-                assert(daysController.text.isEmpty,
-                    "daysController cannot be null or isEmpty");
                 if (_formKey.currentState!.validate()) {
                   ref.read(customerListProvider.notifier).add(CustomerEntity(
                         creationDate: DateTime.now(),
@@ -92,7 +90,11 @@ class CustomerRegisterScreen extends ConsumerWidget {
                             child: const Text("Días"),
                           ),
                           TextFormField(
-                            validator: (value) {},
+                            validator: (value) {
+                              if (value!.trim().isEmpty) {
+                                return "Rellena los campo";
+                              }
+                            },
                             keyboardType: TextInputType.number,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly

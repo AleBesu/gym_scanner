@@ -127,7 +127,20 @@ class RegistredCustomerScreen extends ConsumerWidget {
           ],
         ),
         body: customersList.isEmpty
-            ? const Center(child: const CircularProgressIndicator())
+            ? FutureBuilder(
+                future: Future.delayed(Duration(seconds: 5)),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: const CircularProgressIndicator());
+                  } else {
+                    return Center(
+                      child: Text(
+                        "No hay usuario registrados",
+                      ),
+                    );
+                  }
+                },
+              )
             : ListView.builder(
                 itemCount: customersList.length,
                 itemBuilder: (BuildContext context, int index) {

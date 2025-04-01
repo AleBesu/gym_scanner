@@ -1,62 +1,25 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gym_scanner/UI/Providers/casual_user_payment_provider.dart';
+
 import 'package:gym_scanner/core/Date/time_inverval.dart';
-
-List<FlSpot> _getSelectedValueTime(
-    WidgetRef ref, List<List<List<List<int>>>> regitersData,
-    {required TimeInverval actualTimeInterval,
-    int actualWeek = 0,
-    int actualMonth = 0,
-    int actualYear = 0}) {
-  final casualUserPaymentsPro = ref.watch(casualUserPaymentProvider);
-
-  switch (actualTimeInterval) {
-    case TimeInverval.week:
-      regitersData[actualYear][actualMonth][actualWeek];
-
-    case TimeInverval.month:
-      regitersData[actualYear][actualMonth];
-
-    case TimeInverval.year:
-      regitersData[actualYear];
-
-    default:
-  }
-
-  return [];
-}
 
 abstract class ConfigsGraphs {
   static LineChartData getConfig(BuildContext context,
       {TimeInverval timeInterval = TimeInverval.week,
       required List<FlSpot> coordenatesValuesList}) {
-    // List<LineChartData> configList = [
-    //   _getWeekConfig(context),
-    //   _getMonthConfig(context),
-    //   _getYearConfig(context)
-    // ];
-
     switch (timeInterval) {
       case TimeInverval.week:
         return _getWeekConfig(context, spotsList: coordenatesValuesList);
 
       case TimeInverval.month:
-        return _getMonthConfig(context);
+        return _getMonthConfig(context, spotsList: coordenatesValuesList);
 
       case TimeInverval.year:
-        return _getYearConfig(context);
+        return _getYearConfig(context, spotsList: coordenatesValuesList);
 
       default:
         throw ("introduce un Time Invertal Valido");
     }
-
-    // if (indexToSelect >= configList.length || indexToSelect < 0) {
-    //   throw ("indexToSelect should be indexToSelect >= configList.length || indexToSelect < 0 ");
-    // }
-
-    // return configList[indexToSelect];
   }
 
   static LineChartData _getWeekConfig(BuildContext context,
@@ -65,7 +28,12 @@ abstract class ConfigsGraphs {
 
     return LineChartData(
         lineTouchData: const LineTouchData(),
-        lineBarsData: [LineChartBarData(spots: spotsList)],
+        lineBarsData: [
+          LineChartBarData(
+              spots: spotsList.length < 8
+                  ? spotsList.sublist(0, spotsList.length)
+                  : spotsList.sublist(0, 8))
+        ],
         minY: 0,
         maxY: 80,
         minX: 0,
@@ -122,16 +90,20 @@ abstract class ConfigsGraphs {
                 const AxisTitles(sideTitles: SideTitles(showTitles: false))));
   }
 
-  static LineChartData _getMonthConfig(BuildContext context) {
+  static LineChartData _getMonthConfig(BuildContext context,
+      {required List<FlSpot> spotsList}) {
     Size size = MediaQuery.of(context).size;
 
     return LineChartData(
         lineBarsData: [
-          LineChartBarData(spots: [const FlSpot(1, 4), const FlSpot(2, 5)])
+          LineChartBarData(
+              spots: spotsList.length < 31
+                  ? spotsList.sublist(0, spotsList.length)
+                  : spotsList.sublist(0, 31))
         ],
         minY: 0,
         maxY: 80,
-        minX: 1,
+        minX: 0,
         maxX: 30,
         gridData: FlGridData(
           verticalInterval: 7,
@@ -148,6 +120,9 @@ abstract class ConfigsGraphs {
         titlesData: FlTitlesData(
             bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
+                    getTitlesWidget: (value, meta) {
+                      return Text("${(value + 1).toInt()}");
+                    },
                     maxIncluded: false,
                     interval: 7,
                     showTitles: true,
@@ -163,17 +138,21 @@ abstract class ConfigsGraphs {
                 const AxisTitles(sideTitles: SideTitles(showTitles: false))));
   }
 
-  static LineChartData _getYearConfig(BuildContext context) {
+  static LineChartData _getYearConfig(BuildContext context,
+      {required List<FlSpot> spotsList}) {
     Size size = MediaQuery.of(context).size;
 
     return LineChartData(
         lineBarsData: [
-          LineChartBarData(spots: [const FlSpot(1, 4), const FlSpot(2, 5)])
+          LineChartBarData(
+              spots: spotsList.length < 36
+                  ? spotsList.sublist(0, spotsList.length)
+                  : spotsList.sublist(0, 36))
         ],
         minY: 0,
         maxY: 80,
-        minX: 1,
-        maxX: 12,
+        minX: 0,
+        maxX: 36,
         gridData: FlGridData(
           verticalInterval: 1,
           horizontalInterval: 5,
@@ -191,38 +170,39 @@ abstract class ConfigsGraphs {
                 sideTitles: SideTitles(
                     getTitlesWidget: (value, meta) {
                       switch (value) {
-                        case 1:
+                        case 0:
                           return const Text("E");
-                        case 2:
-                          return const Text("F");
                         case 3:
-                          return const Text("M");
-                        case 4:
-                          return const Text("A");
-                        case 5:
-                          return const Text("M");
+                          return const Text("F");
                         case 6:
-                          return const Text("J");
-
-                        case 7:
-                          return const Text("J");
-
-                        case 8:
-                          return const Text("A");
+                          return const Text("M");
                         case 9:
-                          return const Text("S");
-                        case 10:
-                          return const Text("O");
-                        case 11:
-                          return const Text("N");
+                          return const Text("A");
                         case 12:
+                          return const Text("M");
+                        case 15:
+                          return const Text("J");
+
+                        case 18:
+                          return const Text("J");
+
+                        case 21:
+                          return const Text("A");
+                        case 24:
+                          return const Text("S");
+                        case 27:
+                          return const Text("O");
+                        case 30:
+                          return const Text("N");
+                        case 33:
                           return const Text("D");
 
                         default:
-                          return const Text("without Data");
+                          return const Text("w");
                       }
                     },
-                    interval: 1,
+                    maxIncluded: false,
+                    interval: 3,
                     showTitles: true,
                     reservedSize: size.height * 0.03)),
             leftTitles: AxisTitles(
