@@ -27,17 +27,18 @@ abstract class ConfigsGraphs {
     Size size = MediaQuery.of(context).size;
 
     return LineChartData(
-        lineTouchData: const LineTouchData(),
+        lineTouchData:
+            const LineTouchData(touchTooltipData: LineTouchTooltipData()),
         lineBarsData: [
           LineChartBarData(
-              spots: spotsList.length < 8
+              spots: spotsList.length < 7
                   ? spotsList.sublist(0, spotsList.length)
-                  : spotsList.sublist(0, 8))
+                  : spotsList.sublist(0, 7))
         ],
         minY: 0,
         maxY: 80,
         minX: 0,
-        maxX: 7,
+        maxX: 6,
         gridData: FlGridData(
           verticalInterval: 1,
           horizontalInterval: 5,

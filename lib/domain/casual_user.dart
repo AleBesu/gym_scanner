@@ -1,10 +1,10 @@
-class CasualUser {
+class CasualCustomer {
   int pay;
 
-  CasualUser(this.pay);
+  CasualCustomer(this.pay);
 
-  factory CasualUser.fromJson(Map<String, dynamic> json) {
-    return CasualUser(
+  factory CasualCustomer.fromJson(Map<String, dynamic> json) {
+    return CasualCustomer(
       json['pay'] as int,
     );
   }

@@ -7,7 +7,7 @@ import 'package:sqflite/sqflite.dart';
 final int sinceFirstDay = 30;
 
 final casualUserPaymentProvider = StateNotifierProvider<
-    _CasualUserPaymentStateNotifier, List<List<CasualUser>>>(
+    _CasualUserPaymentStateNotifier, List<List<CasualCustomer>>>(
   (ref) {
     return _CasualUserPaymentStateNotifier([
       // ...List.generate(
@@ -19,31 +19,21 @@ final casualUserPaymentProvider = StateNotifierProvider<
 );
 
 class _CasualUserPaymentStateNotifier
-    extends StateNotifier<List<List<CasualUser>>> {
+    extends StateNotifier<List<List<CasualCustomer>>> {
   _CasualUserPaymentStateNotifier(super.state);
   CustomersDatabase customersDatabase = CustomersDatabase.instance;
 
   Future<void> loadData() async {
     final db = await customersDatabase;
-    final savedList = await customersDatabase.getCasualUserStatitics();
+    final savedList = await customersDatabase.getCasualCustomerStatitics();
     state = savedList;
   }
 
-  void addRegister(CasualUser newRegister, {required int dayToAddIndex}) async {
-    // List<CasualUser> actualDay = state[dayToAddIndex];
-    // actualDay.add(newRegister);
-    // List<List<CasualUser>> newState = state;
-    // for (int i = 0; i < state.length; i++) {
-    //   if (i == dayToAddIndex) {
-    //     newState[i] = actualDay;
-    //   }
-    // }
+  void addRegister(CasualCustomer newRegister,
+      {required int dayToAddIndex}) async {
     await loadData();
-    // List<List<CasualUser>> newState = state;
-    // newState.last.add(newRegister);
-    await customersDatabase.addCasualUser(newRegister);
 
-    // state = newState;
+    await customersDatabase.addCasualCustomer(newRegister);
   }
 
   Future<List<Coordinate2d>> getRegistersCoordenates() async {

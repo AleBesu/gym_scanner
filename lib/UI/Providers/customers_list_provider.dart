@@ -29,10 +29,10 @@ class _CustomersProvider extends StateNotifier<List<CustomerEntity>> {
         .toList();
   }
 
-  void add(CustomerEntity addedCustomer) async {
+  void addCustomer(CustomerEntity addedCustomer) async {
     addedCustomer.creationDate = DateTime.now();
     addedCustomer.lastPayment = DateTime.now();
-
+    addedCustomer.id = Random().nextInt(10000000);
     addedCustomer.qrCodeImage = await generateUserQrImageFile(addedCustomer);
 
     await localDataBase.addCustomer(addedCustomer);
@@ -40,18 +40,16 @@ class _CustomersProvider extends StateNotifier<List<CustomerEntity>> {
   }
 
   void addPayment(CustomerEntity addedCustomer, int daysToAdd) {
-    state = [
-      ...state.map(
-        (customer) {
-          if (addedCustomer.id == customer.id) {
-            customer.expiratioDate =
-                customer.expiratioDate!.add(Duration(days: daysToAdd));
-          }
+    state = state.map(
+      (customer) {
+        if (addedCustomer.id == customer.id) {
+          customer.expiratioDate =
+              customer.expiratioDate!.add(Duration(days: daysToAdd));
+        }
 
-          return customer;
-        },
-      )
-    ];
+        return customer;
+      },
+    ).toList();
   }
 
   Future<void> removeForID(List<int> elementsToRemoveID) async {

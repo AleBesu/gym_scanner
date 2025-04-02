@@ -79,7 +79,7 @@ class _GraphFinancesState extends ConsumerState<GraphFinances> {
                         .toList(),
                   ),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.none) {
+                if (snapshot.hasError) {
                   return Text("Error al cargar datos");
                 }
                 if (snapshot.connectionState == ConnectionState.waiting) {

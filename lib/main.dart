@@ -31,15 +31,8 @@ class MyApp extends StatelessWidget {
     if (casualsCustomersStatistics.isEmpty) {
       await db.insert("casualsCustomersStatistics", {
         "startTimeDate": DateTime.now().toIso8601String(),
-        "casualUserListJSON": jsonEncode([])
+        "casualCustomerListJSON": jsonEncode([])
       });
     }
-    // final startTimeDate = casualsCustomersStatistics[0]["startTimeDate"];
-
-    // if (startTimeDate == null) {
-    //   db.update("casualsCustomersStatistics",
-    //       {"startTimeDate": DateTime.now().toIso8601String()},
-    //       where: "startTimeDate = ?", whereArgs: [null]);
-    // }
   }
 }

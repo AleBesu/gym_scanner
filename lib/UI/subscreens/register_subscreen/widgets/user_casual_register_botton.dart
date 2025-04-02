@@ -19,7 +19,7 @@ class UserCasualRegisterBotton extends ConsumerWidget {
           onValue: (value) {
             ref
                 .read(casualUserPaymentProvider.notifier)
-                .addRegister(CasualUser(value), dayToAddIndex: 0);
+                .addRegister(CasualCustomer(value), dayToAddIndex: 0);
           },
         );
       },

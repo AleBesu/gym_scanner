@@ -23,7 +23,9 @@ class CustomerRegisterScreen extends ConsumerWidget {
           IconButton(
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
-                  ref.read(customerListProvider.notifier).add(CustomerEntity(
+                  ref
+                      .read(customerListProvider.notifier)
+                      .addCustomer(CustomerEntity(
                         creationDate: DateTime.now(),
                         lastPayment: DateTime.now(),
                         userImage: imageSelectedPro,

@@ -25,11 +25,11 @@ class CustomersDatabase {
       version: 1,
       onCreate: (db, version) {
         db.execute(
-          "CREATE TABLE $_table (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT,userImagePath TEXT,qrCodeImagePath TEXT ,creationDate TEXT,lastPayment TEXT,expiratioDate TEXT)",
+          "CREATE TABLE $_table (id INTEGER NOT NULL,name TEXT,userImagePath TEXT,qrCodeImagePath TEXT ,creationDate TEXT,lastPayment TEXT,expiratioDate TEXT)",
         );
 
         db.execute('''
-      CREATE TABLE $_casualsCustomersStatisticsTable( id INTEGER PRIMARY KEY AUTOINCREMENT ,startTimeDate TEXT,casualUserListJSON TEXT)
+      CREATE TABLE $_casualsCustomersStatisticsTable( id INTEGER PRIMARY KEY AUTOINCREMENT ,startTimeDate TEXT,casualCustomerListJSON TEXT)
     
 
 
@@ -62,8 +62,7 @@ class CustomersDatabase {
     }
   }
 
-  Future<List<List<CasualUser>>> getCasualUserStatitics() async {
-    print("Función ejecutada");
+  Future<List<List<CasualCustomer>>> getCasualCustomerStatitics() async {
     final db = await database;
 
     await _fillDaysWithOutRegister();
@@ -73,7 +72,7 @@ class CustomersDatabase {
     );
     List<String> diaryStaticsUserList = casualUserTable
         .map(
-          (e) => e["casualUserListJSON"].toString(),
+          (e) => e["casualCustomerListJSON"].toString(),
         )
         .toList();
 
@@ -81,18 +80,18 @@ class CustomersDatabase {
       (dayList) {
         return (jsonDecode(dayList) as List)
             .map(
-              (CasualUserJson) => CasualUser.fromJson(CasualUserJson),
+              (CasualUserJson) => CasualCustomer.fromJson(CasualUserJson),
             )
             .toList();
       },
     ).toList();
   }
 
-  Future<void> addCasualUser(CasualUser newCasualUser) async {
+  Future<void> addCasualCustomer(CasualCustomer newCasualUser) async {
     final db = await database;
 
-    final daysList = await getCasualUserStatitics();
-    List<CasualUser> lastDay = daysList.last;
+    final daysList = await getCasualCustomerStatitics();
+    List<CasualCustomer> lastDay = daysList.last;
     lastDay.add(newCasualUser);
     final lastDayMaps = lastDay
         .map(
@@ -103,7 +102,7 @@ class CustomersDatabase {
     List<int> idList = await _getDaysIDList();
 
     db.update(_casualsCustomersStatisticsTable,
-        {"casualUserListJSON": jsonEncode(lastDayMaps)},
+        {"casualCustomerListJSON": jsonEncode(lastDayMaps)},
         where: "id = ?", whereArgs: [idList.last]);
   }
 
@@ -132,7 +131,7 @@ class CustomersDatabase {
 
       for (int i = 0; i < diasSinRegistrar; i++) {
         await db.insert(_casualsCustomersStatisticsTable,
-            {"casualUserListJSON": jsonEncode([])});
+            {"casualCustomerListJSON": jsonEncode([])});
       }
     }
   }

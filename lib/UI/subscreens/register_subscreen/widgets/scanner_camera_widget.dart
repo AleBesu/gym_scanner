@@ -56,16 +56,17 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
                   (e) {
                     return e.id;
                   },
-                ).contains(int.parse(getEncriptedValue(
-                  qrSeleccionado.rawValue.toString(),
-                )))) {
+                ).contains(int.tryParse(
+                      qrSeleccionado.rawValue.toString(),
+                    ) ??
+                    -1)) {
                   ref.read(currentCustomerProvider.notifier).state =
                       ref.watch(customerListProvider).firstWhere(
                     (element) {
                       return element.id ==
-                          int.parse(getEncriptedValue(
+                          int.parse(
                             qrSeleccionado.rawValue.toString(),
-                          ));
+                          );
                     },
                   );
                   await audioplayer.setAsset("assets/sounds/successfull.mp3");
