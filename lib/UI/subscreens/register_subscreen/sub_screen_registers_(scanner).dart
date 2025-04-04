@@ -22,7 +22,7 @@ class _SubScreenRegistersState extends ConsumerState<SubScreenRegisters> {
     return Column(
       children: [
         ScannerCameraWidget(),
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(bottom: 25),
           child: UserInfoWidget(),
         ),

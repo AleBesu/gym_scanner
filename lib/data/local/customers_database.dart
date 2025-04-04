@@ -8,7 +8,8 @@ class CustomersDatabase {
   static CustomersDatabase instance = CustomersDatabase._private();
   final String _table = "customers";
   final String _casualsCustomersStatisticsTable = "casualsCustomersStatistics";
-
+  final String _usualCustomerStaticsTable = 'usualCustomerStaticsTable';
+  final String _datesRegistersTable = 'datesRegistersTable';
   CustomersDatabase._private();
   static Database? _database;
 
@@ -29,8 +30,43 @@ class CustomersDatabase {
         );
 
         db.execute('''
-      CREATE TABLE $_casualsCustomersStatisticsTable( id INTEGER PRIMARY KEY AUTOINCREMENT ,startTimeDate TEXT,casualCustomerListJSON TEXT)
-    
+      CREATE TABLE $_casualsCustomersStatisticsTable( id INTEGER PRIMARY KEY AUTOINCREMENT ,casualCustomerListJSON TEXT)
+
+''');
+        db.execute('''
+       CREATE TABLE $_usualCustomerStaticsTable(
+       id INTEGER PRIMARY KEY AUTOINCREMENT,
+       yearWithMonthsWithUsers TEXT
+       
+       
+       
+       )
+
+
+
+
+
+''');
+
+        db.execute('''
+CREATE TABLE startDateTable (
+startTimeDate TEXT
+
+
+
+
+)
+
+
+
+
+''');
+        db.execute('''
+CREATE TABLE datesRegistersTable(
+lastDateRegitred TEXT
+
+
+) 
 
 
 
@@ -39,7 +75,7 @@ class CustomersDatabase {
     );
   }
 
-  Future<List<Map<String, dynamic>>> getCustomersList() async {
+  Future<List<Map<String, dynamic>>> getUsualCustomersList() async {
     final db = await database;
     // db.delete(_table);
     return await db.query(
@@ -48,18 +84,91 @@ class CustomersDatabase {
     );
   }
 
-  Future<void> addCustomer(CustomerEntity entity) async {
+  Future<void> addUsualCustomer(UsualCustomerEntity entity) async {
     final db = await database;
 
     await db.insert("customers", entity.toMap());
   }
 
-  Future<void> deleteCustomer(List<int> elementsToDeleteID) async {
+  Future<void> deleteUsualCustomer(List<int> elementsToDeleteID) async {
     final db = await database;
 
     for (int id in elementsToDeleteID) {
       await db.delete(_table, where: "id = ?", whereArgs: [id]);
     }
+  }
+
+  Future<void> addUsualCustomerStatitic(
+      UsualCustomerEntity usualCustomerEntity) async {
+    _fillMonthsWithoutRegister();
+    final db = await database;
+    final usualUserStatiticsTable = await db.query(_usualCustomerStaticsTable);
+
+    List<List<List<UsualCustomerEntity>>> usualUserStatitics =
+        await getUsualCustomerStatitics();
+    final usualUserStatiticsMaps = usualUserStatitics.map(
+      (year) {
+        return year.map(
+          (month) {
+            return month
+                .map(
+                  (e) => e.toMap(),
+                )
+                .toList();
+          },
+        ).toList();
+      },
+    ).toList();
+    usualUserStatiticsMaps.last.last.add(usualCustomerEntity.toMap());
+
+    db.update(_usualCustomerStaticsTable,
+        {'yearWithMonthsWithUsers': jsonEncode(usualUserStatiticsMaps.last)},
+        where: 'id = ?', whereArgs: [usualUserStatiticsTable.last["id"]]);
+  }
+
+  Future<void> addCasualCustomerStatitic(CasualCustomer newCasualUser) async {
+    _fillDaysWithOutRegister();
+    final db = await database;
+
+    final daysList = await getCasualCustomerStatitics();
+    List<CasualCustomer> lastDay = daysList.last;
+    lastDay.add(newCasualUser);
+    final lastDayMaps = lastDay
+        .map(
+          (e) => e.toMap(),
+        )
+        .toList();
+
+    List<int> idList = await _getDaysIDList();
+
+    db.update(_casualsCustomersStatisticsTable,
+        {"casualCustomerListJSON": jsonEncode(lastDayMaps)},
+        where: "id = ?", whereArgs: [idList.last]);
+  }
+
+  Future<List<List<List<UsualCustomerEntity>>>>
+      getUsualCustomerStatitics() async {
+    _fillMonthsWithoutRegister();
+    final db = await database;
+    final usualUserStatitics = await db.query(_usualCustomerStaticsTable);
+    // print(usualUserStatitics);
+    return usualUserStatitics.map(
+      (e) {
+        List year = jsonDecode(e['yearWithMonthsWithUsers'].toString()) as List;
+
+        return year.map(
+          (month) {
+            return (month as List).map(
+              (e) {
+                print(e);
+                return UsualCustomerEntity.fromMap(
+                    Map<String, dynamic>.from(e));
+              },
+            ).toList();
+          },
+        ).toList();
+      },
+    ).toList();
   }
 
   Future<List<List<CasualCustomer>>> getCasualCustomerStatitics() async {
@@ -80,30 +189,52 @@ class CustomersDatabase {
       (dayList) {
         return (jsonDecode(dayList) as List)
             .map(
-              (CasualUserJson) => CasualCustomer.fromJson(CasualUserJson),
+              (casualUserJson) => CasualCustomer.fromJson(casualUserJson),
             )
             .toList();
       },
     ).toList();
   }
 
-  Future<void> addCasualCustomer(CasualCustomer newCasualUser) async {
+  Future<void> _fillMonthsWithoutRegister() async {
     final db = await database;
+    final datesRegistersTable = await db.query(_datesRegistersTable);
+    final usualCustomerStaticsTab =
+        await db.query(_casualsCustomersStatisticsTable);
 
-    final daysList = await getCasualCustomerStatitics();
-    List<CasualCustomer> lastDay = daysList.last;
-    lastDay.add(newCasualUser);
-    final lastDayMaps = lastDay
-        .map(
-          (e) => e.toMap(),
-        )
-        .toList();
+    if (datesRegistersTable.isEmpty) {
+      await db.insert(_datesRegistersTable,
+          {'lastDateRegitred': DateTime.now().toIso8601String()});
+    }
 
-    List<int> idList = await _getDaysIDList();
+    if (DateTime.tryParse(
+            datesRegistersTable[0]['lastDateRegitred'].toString()) !=
+        null) {
+      final lastDateRegitred =
+          DateTime.parse(datesRegistersTable[0]['lastDateRegitred'].toString());
 
-    db.update(_casualsCustomersStatisticsTable,
-        {"casualCustomerListJSON": jsonEncode(lastDayMaps)},
-        where: "id = ?", whereArgs: [idList.last]);
+      if ((await db.query(_usualCustomerStaticsTable)).isEmpty) {
+        await db.insert(_usualCustomerStaticsTable, {
+          'yearWithMonthsWithUsers': jsonEncode([[]])
+        });
+      }
+
+      if (DateTime.now().month > lastDateRegitred.month ||
+          DateTime.now().year > lastDateRegitred.year) {
+        final timeToAdd = (DateTime.now().year - lastDateRegitred.year) * 12 +
+            (DateTime.now().month - lastDateRegitred.month);
+
+        for (int i = 0; i < timeToAdd; i++) {
+          // monthsListWithUsualCustomerLists
+
+          db.insert(_usualCustomerStaticsTable, {
+            'yearWithMonthsWithUsers': jsonEncode([[]])
+          });
+        }
+      }
+    } else {
+      throw ('lastMonth cannot be null');
+    }
   }
 
   Future<void> _fillDaysWithOutRegister() async {
@@ -112,19 +243,18 @@ class CustomersDatabase {
     final casualUserTable = await db.query(
       _casualsCustomersStatisticsTable,
     );
-    print(DateTime.now()
-        .difference(
-            DateTime.parse(casualUserTable[0]["startTimeDate"].toString()))
-        .inDays);
+    final importanDatesTable = await db.query('startDateTable');
+
     if (casualUserTable.length <
         DateTime.now()
-            .difference(
-                DateTime.parse(casualUserTable[0]["startTimeDate"].toString()))
-            .inDays) {
+                .difference(DateTime.parse(
+                    importanDatesTable[0]['startTimeDate'].toString()))
+                .inDays +
+            1) {
       ///////////////////////////////////
       int diasSinRegistrar = DateTime.now()
               .difference(DateTime.parse(
-                  casualUserTable[0]["startTimeDate"].toString()))
+                  importanDatesTable[0]['startTimeDate'].toString()))
               .inDays -
           casualUserTable.length +
           1;

@@ -6,7 +6,10 @@ import 'package:gym_scanner/UI/subscreens/register_subscreen/widgets/statusUserW
 import 'package:gym_scanner/domain/customer_entity.dart';
 
 class UserInfoWidget extends ConsumerWidget {
-  const UserInfoWidget({super.key});
+  UserInfoWidget({super.key});
+  UsualCustomerEntity?
+      lastUserEntity; /*this for save the last user Authenticated,because currentCustomerProvider is not a Future and i'm lazy to change that now */
+  UniqueKey _loadUserKey = UniqueKey();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -30,70 +33,84 @@ class UserInfoWidget extends ConsumerWidget {
                       Icons.person_search,
                       size: size.height * 0.1,
                     ),
-                    Text("Escanea un usuario")
+                    const Text("Escanea un usuario")
                   ],
                 ),
               )
-            : Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+            : FutureBuilder(
+                key: _loadUserKey,
+                future: Future.delayed(const Duration(seconds: 1)),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if (lastUserEntity == null ||
+                      entity.id != lastUserEntity!.id) {
+                    lastUserEntity = entity;
+                    _loadUserKey = UniqueKey();
+                  }
+                  return Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Container(
-                          width: size.width / 3,
-                          height: size.width / 3,
-                          decoration: BoxDecoration(
-                              image: entity.userImage != null
-                                  ? DecorationImage(image: entity.userImage!)
-                                  : null),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Container(
+                              width: size.width / 3,
+                              height: size.width / 3,
+                              decoration: BoxDecoration(
+                                  image: entity.userImage != null
+                                      ? DecorationImage(
+                                          image: entity.userImage!)
+                                      : null),
+                            ),
+                          ),
+                          SizedBox(
+                            width: size.width * 0.08,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Container(
+                              width: size.width / 3,
+                              height: size.width / 3,
+                              decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      filterQuality: FilterQuality.none,
+                                      image: entity.qrCodeImage!)),
+                            ),
+                          ),
+                        ],
+                      ),
+                      ListTile(
+                        title: const Text(
+                          "Información",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            InfoText(
+                              info: "Nombre",
+                              value: entity.name,
+                            ),
+                            InfoText(
+                              info: "Ultimo pago",
+                              value:
+                                  "${entity.lastPayment!.day}-${entity.lastPayment!.month}-${entity.lastPayment!.year}",
+                            ),
+                            InfoText(
+                              info: "Dias Restantes",
+                              value: entity.availablesDays.toString(),
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(
-                        width: size.width * 0.08,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Container(
-                          width: size.width / 3,
-                          height: size.width / 3,
-                          decoration: BoxDecoration(
-                              image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  filterQuality: FilterQuality.none,
-                                  image: entity.qrCodeImage!)),
-                        ),
-                      ),
+                      UserStatusWidget._UserStatusWidget()
                     ],
-                  ),
-                  ListTile(
-                    title: const Text(
-                      "Información",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        InfoText(
-                          info: "Nombre",
-                          value: entity.name,
-                        ),
-                        InfoText(
-                          info: "Ultimo pago",
-                          value:
-                              "${entity.lastPayment!.day}-${entity.lastPayment!.month}-${entity.lastPayment!.year}",
-                        ),
-                        InfoText(
-                          info: "Dias Restantes",
-                          value: entity.availablesDays.toString(),
-                        ),
-                      ],
-                    ),
-                  ),
-                  UserStatusWidget._UserStatusWidget()
-                ],
-              ),
+                  );
+                }),
       ),
     ]);
   }

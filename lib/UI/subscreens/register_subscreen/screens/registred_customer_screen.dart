@@ -98,7 +98,8 @@ class RegistredCustomerScreen extends ConsumerWidget {
                                                 indexList: selectedElements)
                                             .map(
                                           (e) {
-                                            final entity = e as CustomerEntity;
+                                            final entity =
+                                                e as UsualCustomerEntity;
 
                                             return entity.id!;
                                           },
@@ -155,7 +156,7 @@ class RegistredCustomerScreen extends ConsumerWidget {
 }
 
 class _RegisterCustomerWidget extends StatelessWidget {
-  final CustomerEntity entity;
+  final UsualCustomerEntity entity;
   const _RegisterCustomerWidget(this.entity);
 
   @override

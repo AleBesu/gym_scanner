@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gym_scanner/UI/Providers/Statitics/usual_user_payment_provider.dart';
 import 'package:gym_scanner/UI/Providers/customers_list_provider.dart';
 import 'package:gym_scanner/UI/widgets/imageSelector/image_selected_widget.dart';
 
@@ -25,7 +26,7 @@ class CustomerRegisterScreen extends ConsumerWidget {
                 if (_formKey.currentState!.validate()) {
                   ref
                       .read(customerListProvider.notifier)
-                      .addCustomer(CustomerEntity(
+                      .addCustomer(UsualCustomerEntity(
                         creationDate: DateTime.now(),
                         lastPayment: DateTime.now(),
                         userImage: imageSelectedPro,

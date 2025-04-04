@@ -6,7 +6,7 @@ import 'package:sqflite/sqflite.dart';
 
 final int sinceFirstDay = 30;
 
-final casualUserPaymentProvider = StateNotifierProvider<
+final casualUserPaymentStatiticsProvider = StateNotifierProvider<
     _CasualUserPaymentStateNotifier, List<List<CasualCustomer>>>(
   (ref) {
     return _CasualUserPaymentStateNotifier([
@@ -24,7 +24,6 @@ class _CasualUserPaymentStateNotifier
   CustomersDatabase customersDatabase = CustomersDatabase.instance;
 
   Future<void> loadData() async {
-    final db = await customersDatabase;
     final savedList = await customersDatabase.getCasualCustomerStatitics();
     state = savedList;
   }
@@ -33,7 +32,7 @@ class _CasualUserPaymentStateNotifier
       {required int dayToAddIndex}) async {
     await loadData();
 
-    await customersDatabase.addCasualCustomer(newRegister);
+    await customersDatabase.addCasualCustomerStatitic(newRegister);
   }
 
   Future<List<Coordinate2d>> getRegistersCoordenates() async {

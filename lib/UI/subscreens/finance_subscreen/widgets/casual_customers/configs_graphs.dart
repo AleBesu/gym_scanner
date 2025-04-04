@@ -31,6 +31,10 @@ abstract class ConfigsGraphs {
             const LineTouchData(touchTooltipData: LineTouchTooltipData()),
         lineBarsData: [
           LineChartBarData(
+              color: spotsList.length <= 1 ||
+                      spotsList.last.y >= spotsList[spotsList.length - 2].y
+                  ? Colors.green
+                  : Colors.red,
               spots: spotsList.length < 7
                   ? spotsList.sublist(0, spotsList.length)
                   : spotsList.sublist(0, 7))
@@ -85,8 +89,10 @@ abstract class ConfigsGraphs {
                     interval: 10,
                     reservedSize: size.width * 0.08,
                     showTitles: true)),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(
+                sideTitles: SideTitles(
+              showTitles: false,
+            )),
             rightTitles:
                 const AxisTitles(sideTitles: SideTitles(showTitles: false))));
   }
@@ -98,6 +104,10 @@ abstract class ConfigsGraphs {
     return LineChartData(
         lineBarsData: [
           LineChartBarData(
+              color: spotsList.length <= 1 ||
+                      spotsList.last.y >= spotsList[spotsList.length - 2].y
+                  ? Colors.green
+                  : Colors.red,
               spots: spotsList.length < 31
                   ? spotsList.sublist(0, spotsList.length)
                   : spotsList.sublist(0, 31))
@@ -146,6 +156,10 @@ abstract class ConfigsGraphs {
     return LineChartData(
         lineBarsData: [
           LineChartBarData(
+              color: spotsList.length <= 1 ||
+                      spotsList.last.y >= spotsList[spotsList.length - 2].y
+                  ? Colors.green
+                  : Colors.red,
               spots: spotsList.length < 36
                   ? spotsList.sublist(0, spotsList.length)
                   : spotsList.sublist(0, 36))

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-class CustomerEntity {
+class UsualCustomerEntity {
   int? id;
   String name;
   ImageProvider? userImage;
@@ -11,7 +11,7 @@ class CustomerEntity {
   DateTime? lastPayment;
   DateTime? expiratioDate;
 
-  CustomerEntity(this.name,
+  UsualCustomerEntity(this.name,
       {required this.userImage,
       this.qrCodeImage,
       this.id,
@@ -23,8 +23,8 @@ class CustomerEntity {
     return expiratioDate!.difference(DateTime.now()).inDays + 1;
   }
 
-  factory CustomerEntity.fromMap(Map<String, dynamic> map) {
-    return CustomerEntity(
+  factory UsualCustomerEntity.fromMap(Map<String, dynamic> map) {
+    return UsualCustomerEntity(
       map["name"],
       id: map["id"],
       userImage: _getImage(map["userImagePath"]),

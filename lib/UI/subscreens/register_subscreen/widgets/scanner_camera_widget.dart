@@ -4,6 +4,7 @@ import 'package:gym_scanner/UI/Providers/current_customer_provider.dart';
 
 import 'package:gym_scanner/UI/Providers/customers_list_provider.dart';
 import 'package:gym_scanner/core/encriptation/get_encripted_value.dart';
+import 'package:gym_scanner/domain/customer_entity.dart';
 
 import 'package:just_audio/just_audio.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -33,7 +34,7 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
   bool isVisibleBottons = false;
   bool isOnCamera = false;
   bool qrSelected = false;
-
+  UsualCustomerEntity? lastUserEntity;
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -57,9 +58,8 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
                     return e.id;
                   },
                 ).contains(int.tryParse(
-                      qrSeleccionado.rawValue.toString(),
-                    ) ??
-                    -1)) {
+                  qrSeleccionado.rawValue.toString(),
+                ))) {
                   ref.read(currentCustomerProvider.notifier).state =
                       ref.watch(customerListProvider).firstWhere(
                     (element) {
@@ -136,33 +136,33 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
   }
 }
 
-class ScannerCameraFullScreen extends StatefulWidget {
-  const ScannerCameraFullScreen({super.key});
+// class ScannerCameraFullScreen extends StatefulWidget {
+//   const ScannerCameraFullScreen({super.key});
 
-  @override
-  State<ScannerCameraFullScreen> createState() =>
-      _ScannerCameraFullScreenState();
-}
+//   @override
+//   State<ScannerCameraFullScreen> createState() =>
+//       _ScannerCameraFullScreenState();
+// }
 
-class _ScannerCameraFullScreenState extends State<ScannerCameraFullScreen> {
-  final MobileScannerController _controller = MobileScannerController();
-  @override
-  void initState() {
-    super.initState();
-    _controller.start();
-  }
+// class _ScannerCameraFullScreenState extends State<ScannerCameraFullScreen> {
+//   final MobileScannerController _controller = MobileScannerController();
+//   @override
+//   void initState() {
+//     super.initState();
+//     _controller.start();
+//   }
 
-  @override
-  void dispose() async {
-    super.dispose();
-    _controller.dispose();
-    Future.delayed(const Duration(seconds: 3));
-  }
+//   @override
+//   void dispose() async {
+//     super.dispose();
+//     _controller.dispose();
+//     Future.delayed(const Duration(seconds: 3));
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return MobileScanner(
-      controller: _controller,
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return MobileScanner(
+//       controller: _controller,
+//     );
+//   }
+// }

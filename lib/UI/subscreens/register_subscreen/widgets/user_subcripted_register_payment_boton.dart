@@ -10,7 +10,7 @@ import 'package:gym_scanner/domain/customer_entity.dart';
 import 'dialogs/show_payment_form.dart';
 
 class UserRegisterPaymentBoton extends ConsumerWidget {
-  final CustomerEntity entity;
+  final UsualCustomerEntity entity;
   const UserRegisterPaymentBoton({super.key, required this.entity});
 
   @override

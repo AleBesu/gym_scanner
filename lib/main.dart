@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/main_screen.dart';
 import 'package:gym_scanner/data/local/customers_database.dart';
-import 'package:gym_scanner/domain/casual_user.dart';
 
 void main() => runApp(const ProviderScope(child: MyApp()));
 
@@ -25,13 +24,10 @@ class MyApp extends StatelessWidget {
     CustomersDatabase customersDatabase = CustomersDatabase.instance;
     final db = await customersDatabase.database;
 
-    final casualsCustomersStatistics =
-        await db.query("casualsCustomersStatistics");
-
-    if (casualsCustomersStatistics.isEmpty) {
-      await db.insert("casualsCustomersStatistics", {
+    final importanDatesTable = await db.query('startDateTable');
+    if (importanDatesTable.isEmpty) {
+      await db.insert("startDateTable", {
         "startTimeDate": DateTime.now().toIso8601String(),
-        "casualCustomerListJSON": jsonEncode([])
       });
     }
   }

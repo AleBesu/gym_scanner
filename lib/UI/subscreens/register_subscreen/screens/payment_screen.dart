@@ -17,15 +17,37 @@ class PaymentScreen extends ConsumerWidget {
           ? FutureBuilder(
               future: Future.delayed(const Duration(seconds: 5)),
               builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else {
-                  return const Center(
-                    child: Text(
-                      "No hay usuario registrados",
-                    ),
-                  );
-                }
+                // if (snapshot.connectionState == ConnectionState.waiting) {
+                //   ;
+                // } else {
+                return ListView.builder(
+                  itemCount: 2,
+                  itemBuilder: (BuildContext context, int index) {
+                    if (index == 0) {
+                      return UserCasualRegisterBotton();
+                    }
+                    if (index == 1 &&
+                        snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                          child: Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: CircularProgressIndicator(),
+                      ));
+                    }
+                    return Center(
+                      child: Text(
+                        "No hay usuarios registrados",
+                      ),
+                    );
+                  },
+                );
+
+                // return const Center(
+                //   child: Text(
+                //     "No hay usuario registrados",
+                //   ),
+                // );
+                // }
               },
             )
           : ListView.builder(

@@ -1,8 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gym_scanner/UI/Providers/casual_user_payment_provider.dart';
-import 'package:gym_scanner/UI/subscreens/finance_subscreen/widgets/configs_graphs.dart';
+import 'package:gym_scanner/UI/Providers/Statitics/casual_user_payment_statitics_provider.dart';
+import 'package:gym_scanner/UI/subscreens/finance_subscreen/widgets/casual_customers/configs_graphs.dart';
 import 'package:gym_scanner/core/Date/time_inverval.dart';
 
 List<int> _moneyQuantityList = [
@@ -20,14 +20,15 @@ List<int> _moneyQuantityList = [
   1100
 ];
 
-class GraphFinances extends ConsumerStatefulWidget {
-  const GraphFinances({super.key});
+class GraphFinancesCasualCustomers extends ConsumerStatefulWidget {
+  const GraphFinancesCasualCustomers({super.key});
 
   @override
-  ConsumerState<GraphFinances> createState() => _GraphFinancesState();
+  ConsumerState<GraphFinancesCasualCustomers> createState() =>
+      _GraphFinancesState();
 }
 
-class _GraphFinancesState extends ConsumerState<GraphFinances> {
+class _GraphFinancesState extends ConsumerState<GraphFinancesCasualCustomers> {
   List<TimeInverval> timeTypeSelectedList = [
     TimeInverval.week,
     TimeInverval.month,
@@ -69,7 +70,7 @@ class _GraphFinancesState extends ConsumerState<GraphFinances> {
         Expanded(
           child: FutureBuilder(
               future: ref
-                  .read(casualUserPaymentProvider.notifier)
+                  .read(casualUserPaymentStatiticsProvider.notifier)
                   .getRegistersCoordenates()
                   .then(
                     (value) => value

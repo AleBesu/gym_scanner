@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gym_scanner/UI/Providers/casual_user_payment_provider.dart';
+import 'package:gym_scanner/UI/Providers/Statitics/casual_user_payment_statitics_provider.dart';
 import 'package:gym_scanner/UI/subscreens/register_subscreen/widgets/dialogs/show_payment_form.dart';
 import 'package:gym_scanner/domain/casual_user.dart';
 
@@ -18,7 +18,7 @@ class UserCasualRegisterBotton extends ConsumerWidget {
           monthData: false,
           onValue: (value) {
             ref
-                .read(casualUserPaymentProvider.notifier)
+                .read(casualUserPaymentStatiticsProvider.notifier)
                 .addRegister(CasualCustomer(value), dayToAddIndex: 0);
           },
         );
@@ -29,7 +29,15 @@ class UserCasualRegisterBotton extends ConsumerWidget {
             color: Colors.red,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [Icon(Icons.add)],
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.person_add),
+                    Text("Agregar usuario casual")
+                  ],
+                )
+              ],
             )),
       ),
     );
