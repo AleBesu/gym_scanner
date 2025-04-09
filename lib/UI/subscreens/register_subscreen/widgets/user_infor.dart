@@ -14,7 +14,7 @@ class UserInfoWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Size size = MediaQuery.of(context).size;
-    final entity = ref.watch(currentCustomerProvider);
+    final entity = ref.watch(currentUsualCustomerSelectedProvider);
     return Stack(children: [
       Container(
         color: const Color.fromARGB(255, 54, 54, 54),

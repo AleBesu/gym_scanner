@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/Providers/current_customer_provider.dart';
 
-import 'package:gym_scanner/UI/Providers/customers_list_provider.dart';
-import 'package:gym_scanner/core/encriptation/get_encripted_value.dart';
+import 'package:gym_scanner/UI/Providers/usual_customers_list_provider.dart';
+
 import 'package:gym_scanner/domain/customer_entity.dart';
 
 import 'package:just_audio/just_audio.dart';
@@ -53,15 +53,16 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
 
                 final qrSeleccionado = barcodes.barcodes[0];
 
-                if (ref.watch(customerListProvider).map(
+                if (ref.watch(usualCustomerListProvider).map(
                   (e) {
                     return e.id;
                   },
                 ).contains(int.tryParse(
                   qrSeleccionado.rawValue.toString(),
                 ))) {
-                  ref.read(currentCustomerProvider.notifier).state =
-                      ref.watch(customerListProvider).firstWhere(
+                  ref
+                      .read(currentUsualCustomerSelectedProvider.notifier)
+                      .state = ref.watch(usualCustomerListProvider).firstWhere(
                     (element) {
                       return element.id ==
                           int.parse(

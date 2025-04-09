@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gym_scanner/UI/Providers/customers_list_provider.dart';
+import 'package:gym_scanner/UI/Providers/usual_customers_list_provider.dart';
 
 import 'package:gym_scanner/UI/widgets/dialogs/show_image.dart';
 import 'package:gym_scanner/UI/widgets/info_text.dart';
@@ -61,7 +61,7 @@ class UserRegisterPaymentBoton extends ConsumerWidget {
                   ref,
                   onValue: (value) {
                     ref
-                        .read(customerListProvider.notifier)
+                        .read(usualCustomerListProvider.notifier)
                         .addPayment(entity, value);
                   },
                 );

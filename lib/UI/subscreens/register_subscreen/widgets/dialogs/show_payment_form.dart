@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/domain/customer_entity.dart';
 
-import '../../../../Providers/customers_list_provider.dart';
+import '../../../../Providers/usual_customers_list_provider.dart';
 
 Future<void> showPaymentForm(
   BuildContext context,

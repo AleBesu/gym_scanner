@@ -6,6 +6,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/Providers/Statitics/usual_user_payment_provider.dart';
+import 'package:gym_scanner/domain/customer_entity.dart';
 
 class GraphFinancesUsualCustomers extends ConsumerStatefulWidget {
   const GraphFinancesUsualCustomers({super.key});
@@ -17,16 +18,44 @@ class GraphFinancesUsualCustomers extends ConsumerStatefulWidget {
 
 class _GraphFinancesUsualCustomersState
     extends ConsumerState<GraphFinancesUsualCustomers> {
+  int _startMonth = 0;
+  int yearSelected = 0;
+  Future<List<List<UsualCustomerEntity>>>? _futureYearStatistics;
+  @override
+  void initState() {
+    super.initState();
+    _loadInitialData(ref);
+  }
+
+  Future<void> _loadInitialData(WidgetRef ref) async {
+    final startDateTime = await ref
+        .read(usualUserPaymentStatiticsProvider.notifier)
+        .getStartDateTime();
+    final allYearsStatiticPro = await ref
+        .read(usualUserPaymentStatiticsProvider.notifier)
+        .getAllYearsStatics();
+
+    setState(() {
+      _startMonth = startDateTime.month;
+      yearSelected = allYearsStatiticPro.length - 1;
+      _futureYearStatistics = ref
+          .read(usualUserPaymentStatiticsProvider.notifier)
+          .getAYearStatitics(yearSelected: yearSelected);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double barWith = size.width * 0.06;
+
+    ///if year selected is null the the year selected is the last year
+
     return FutureBuilder(
-        future:
-            ref.read(usualUserPaymentStatiticsProvider.notifier).getStatitics(),
+        future: _futureYearStatistics,
         builder: (context, snapshot) {
           if (snapshot.data == null) {
-            return Text("error");
+            return const Text("error");
           }
 
           final usualUserPaymentStatitic = snapshot.data!;
@@ -53,32 +82,76 @@ class _GraphFinancesUsualCustomersState
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
+                      reservedSize: size.height * 0.08,
                       getTitlesWidget: (value, meta) {
+                        bool isStartMonth = false;
+
+                        if (yearSelected == 0 &&
+                            _startMonth.toDouble() == value + 1) {
+                          isStartMonth = true;
+                        }
+
                         switch (value) {
                           case 0:
-                            return const Text('E');
+                            return _MonthTitle(
+                              'E',
+                              isStartMonth: isStartMonth,
+                            );
                           case 1:
-                            return const Text('F');
+                            return _MonthTitle(
+                              'F',
+                              isStartMonth: isStartMonth,
+                            );
                           case 2:
-                            return const Text('M');
+                            return _MonthTitle(
+                              'M',
+                              isStartMonth: isStartMonth,
+                            );
                           case 3:
-                            return const Text('A');
+                            return _MonthTitle(
+                              'A',
+                              isStartMonth: isStartMonth,
+                            );
                           case 4:
-                            return const Text('M');
+                            return _MonthTitle(
+                              'M',
+                              isStartMonth: isStartMonth,
+                            );
                           case 5:
-                            return const Text('J');
+                            return _MonthTitle(
+                              'J',
+                              isStartMonth: isStartMonth,
+                            );
                           case 6:
-                            return const Text('J');
+                            return _MonthTitle(
+                              'J',
+                              isStartMonth: isStartMonth,
+                            );
                           case 7:
-                            return const Text('A');
+                            return _MonthTitle(
+                              'A',
+                              isStartMonth: isStartMonth,
+                            );
                           case 8:
-                            return const Text('S');
+                            return _MonthTitle(
+                              'S',
+                              isStartMonth: isStartMonth,
+                            );
                           case 9:
-                            return const Text('O');
+                            return _MonthTitle(
+                              'O',
+                              isStartMonth: isStartMonth,
+                            );
                           case 10:
-                            return const Text('N');
+                            return _MonthTitle(
+                              'N',
+                              isStartMonth: isStartMonth,
+                            );
                           case 11:
-                            return const Text('D');
+                            return _MonthTitle(
+                              'D',
+                              isStartMonth: isStartMonth,
+                            );
 
                           default:
                             return const Text("no data");
@@ -87,5 +160,26 @@ class _GraphFinancesUsualCustomersState
                     ),
                   ))));
         });
+  }
+}
+
+class _MonthTitle extends StatelessWidget {
+  final String text;
+  bool isStartMonth;
+  _MonthTitle(this.text, {super.key, this.isStartMonth = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(text),
+        if (isStartMonth)
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: const Icon(Icons.flag_circle),
+          )
+      ],
+    );
   }
 }

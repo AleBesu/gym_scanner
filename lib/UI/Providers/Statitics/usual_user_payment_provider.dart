@@ -15,18 +15,25 @@ class _UsualUserPayment
   CustomersDatabase customersDatabase = CustomersDatabase.instance;
 
   Future<void> addRegister(UsualCustomerEntity entity) async {
-    await customersDatabase.addUsualCustomerStatitic(entity);
+    await customersDatabase.addUsualCustomerStatitic(entity,
+        toAddMonthNumber: DateTime.now().month);
   }
 
-  Future<List<List<UsualCustomerEntity>>> getStatitics() async {
+  Future<List<List<UsualCustomerEntity>>> getAYearStatitics(
+      {required int yearSelected}) async {
     final allStattitics = await customersDatabase.getUsualCustomerStatitics();
 
-    // return allStattitics[0];
-    return allStattitics[0];
+    return allStattitics[yearSelected];
   }
 
-  // Future<List<Coordinate2d>> getRegistersCoordenates() async {
+  Future<List<List<List<UsualCustomerEntity>>>> getAllYearsStatics() async {
+    // final valor = await customersDatabase.getUsualCustomerStatitics();
+    // print(valor.length);
 
-  //   return coordenatesList;
-  // }
+    return await customersDatabase.getUsualCustomerStatitics();
+  }
+
+  Future<DateTime> getStartDateTime() async {
+    return customersDatabase.getStartDateTime();
+  }
 }

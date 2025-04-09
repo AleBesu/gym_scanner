@@ -7,7 +7,7 @@ import 'package:gym_scanner/data/local/customers_database.dart';
 
 import 'package:gym_scanner/domain/customer_entity.dart';
 
-final customerListProvider =
+final usualCustomerListProvider =
     StateNotifierProvider<_CustomersProvider, List<UsualCustomerEntity>>(
   (ref) {
     return _CustomersProvider([], ref);
@@ -44,6 +44,7 @@ class _CustomersProvider extends StateNotifier<List<UsualCustomerEntity>> {
     ref
         .read(usualUserPaymentStatiticsProvider.notifier)
         .addRegister(addedCustomer);
+    //////////////////////////
   }
 
   void addPayment(UsualCustomerEntity addedCustomer, int daysToAdd) {

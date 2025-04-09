@@ -24,8 +24,9 @@ class _CasualUserPaymentStateNotifier
   CustomersDatabase customersDatabase = CustomersDatabase.instance;
 
   Future<void> loadData() async {
-    final savedList = await customersDatabase.getCasualCustomerStatitics();
-    state = savedList;
+    final allYearsList = await customersDatabase.getCasualCustomerStatitics();
+
+    state = allYearsList.last;
   }
 
   void addRegister(CasualCustomer newRegister,

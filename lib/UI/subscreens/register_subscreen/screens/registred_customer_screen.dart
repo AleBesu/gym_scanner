@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gym_scanner/UI/Providers/customers_list_provider.dart';
+import 'package:gym_scanner/UI/Providers/usual_customers_list_provider.dart';
 import 'package:gym_scanner/UI/widgets/dialogs/show_image.dart';
 import 'package:gym_scanner/UI/widgets/selecter/selectable_elements.dart';
 import 'package:gym_scanner/core/Date/date_time_format.dart';
@@ -14,7 +14,7 @@ class RegistredCustomerScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Size size = MediaQuery.of(context).size;
-    final customersList = ref.watch(customerListProvider);
+    final customersList = ref.watch(usualCustomerListProvider);
     final selectedElements = ref.watch(selectedElementIndexListProvider);
     return PopScope(
       canPop: !ref.watch(isSelectingModeProvider),
@@ -92,7 +92,8 @@ class RegistredCustomerScreen extends ConsumerWidget {
                               TextButton(
                                   onPressed: () async {
                                     await ref
-                                        .read(customerListProvider.notifier)
+                                        .read(
+                                            usualCustomerListProvider.notifier)
                                         .removeForID(listWhereIndex(
                                                 customersList,
                                                 indexList: selectedElements)
