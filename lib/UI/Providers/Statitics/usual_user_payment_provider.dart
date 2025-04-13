@@ -27,8 +27,8 @@ class _UsualUserPayment
   }
 
   Future<List<List<List<UsualCustomerEntity>>>> getAllYearsStatics() async {
-    // final valor = await customersDatabase.getUsualCustomerStatitics();
-    // print(valor.length);
+    final valor = await customersDatabase.getUsualCustomerStatitics();
+    print(valor.length);
 
     return await customersDatabase.getUsualCustomerStatitics();
   }

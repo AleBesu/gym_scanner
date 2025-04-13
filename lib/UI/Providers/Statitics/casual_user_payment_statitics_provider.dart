@@ -47,4 +47,12 @@ class _CasualUserPaymentStateNotifier
 
     return coordenatesList;
   }
+
+  Future<DateTime> getLastDateRegister() async {
+    return await customersDatabase.lastDateRegitred;
+  }
+
+  Future<DateTime> get startDate async {
+    return await customersDatabase.startTimeDate;
+  }
 }

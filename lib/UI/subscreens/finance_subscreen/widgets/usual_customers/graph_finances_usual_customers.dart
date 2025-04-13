@@ -21,6 +21,9 @@ class _GraphFinancesUsualCustomersState
   int _startMonth = 0;
   int yearSelected = 0;
   Future<List<List<UsualCustomerEntity>>>? _futureYearStatistics;
+  List<List<List<UsualCustomerEntity>>>? allYearsStatiticPro;
+  DateTime startDateTime = DateTime(1);
+
   @override
   void initState() {
     super.initState();
@@ -28,19 +31,28 @@ class _GraphFinancesUsualCustomersState
   }
 
   Future<void> _loadInitialData(WidgetRef ref) async {
-    final startDateTime = await ref
+    startDateTime = await ref
         .read(usualUserPaymentStatiticsProvider.notifier)
         .getStartDateTime();
-    final allYearsStatiticPro = await ref
+    allYearsStatiticPro = await ref
         .read(usualUserPaymentStatiticsProvider.notifier)
         .getAllYearsStatics();
 
     setState(() {
       _startMonth = startDateTime.month;
-      yearSelected = allYearsStatiticPro.length - 1;
+      if (allYearsStatiticPro != null) {
+        _futureYearStatistics = ref
+            .read(usualUserPaymentStatiticsProvider.notifier)
+            .getAYearStatitics(yearSelected: allYearsStatiticPro!.length - 1);
+      }
+    });
+  }
+
+  Future<void> selectYear(int yearToSelect) async {
+    setState(() {
       _futureYearStatistics = ref
           .read(usualUserPaymentStatiticsProvider.notifier)
-          .getAYearStatitics(yearSelected: yearSelected);
+          .getAYearStatitics(yearSelected: yearToSelect);
     });
   }
 
@@ -61,6 +73,9 @@ class _GraphFinancesUsualCustomersState
           final usualUserPaymentStatitic = snapshot.data!;
 
           return BarChart(BarChartData(
+              borderData: FlBorderData(
+                  border: Border.all(
+                      color: Colors.white, width: size.width * 0.001)),
               maxY: 200,
               barGroups: [
                 ...List.generate(usualUserPaymentStatitic.length, (index) {
@@ -78,7 +93,37 @@ class _GraphFinancesUsualCustomersState
                       sideTitles: SideTitles(
                           showTitles: true, reservedSize: size.width * 0.1)),
                   rightTitles: const AxisTitles(),
-                  topTitles: const AxisTitles(),
+                  topTitles: AxisTitles(
+                    axisNameSize: size.height * 0.035,
+                    axisNameWidget: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Clientes Suscritos',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        if (allYearsStatiticPro != null)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: (allYearsStatiticPro ?? []).length <= 1
+                                ? Text(DateTime.now().year.toString())
+                                : DropdownButton(
+                                    value: (DateTime.now().year - 1).toString(),
+                                    items: List.generate(
+                                        allYearsStatiticPro!.length, (index) {
+                                      int currentYear =
+                                          startDateTime.year + index;
+
+                                      return DropdownMenuItem(
+                                          value: currentYear.toString(),
+                                          child: Text(currentYear.toString()));
+                                    }),
+                                    onChanged: (value) {},
+                                  ),
+                          )
+                      ],
+                    ),
+                  ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,

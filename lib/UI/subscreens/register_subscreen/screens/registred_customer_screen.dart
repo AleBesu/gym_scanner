@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/Providers/usual_customers_list_provider.dart';
 import 'package:gym_scanner/UI/widgets/dialogs/show_image.dart';
+import 'package:gym_scanner/UI/subscreens/register_subscreen/widgets/seach_delegate/SeachUsualCustomerDelegate.dart';
 import 'package:gym_scanner/UI/widgets/selecter/selectable_elements.dart';
 import 'package:gym_scanner/core/Date/date_time_format.dart';
 import 'package:gym_scanner/core/list_where_index.dart';
@@ -26,6 +27,14 @@ class RegistredCustomerScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           actions: [
+            if (!ref.watch(isSelectingModeProvider))
+              InkWell(
+                  onTap: () {
+                    showSearch(
+                        context: context,
+                        delegate: SeachUsualCustomerDelegate(customersList));
+                  },
+                  child: const Icon(Icons.search)),
             if (ref.watch(isSelectingModeProvider))
               selectedElements.length < customersList.length
                   ? Padding(
@@ -130,12 +139,12 @@ class RegistredCustomerScreen extends ConsumerWidget {
         ),
         body: customersList.isEmpty
             ? FutureBuilder(
-                future: Future.delayed(Duration(seconds: 5)),
+                future: Future.delayed(const Duration(seconds: 5)),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: const CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   } else {
-                    return Center(
+                    return const Center(
                       child: Text(
                         "No hay usuario registrados",
                       ),
@@ -148,7 +157,7 @@ class RegistredCustomerScreen extends ConsumerWidget {
                 itemBuilder: (BuildContext context, int index) {
                   return SelectableWidget(
                       index: index,
-                      child: _RegisterCustomerWidget(customersList[index]));
+                      child: RegisterCustomerWidget(customersList[index]));
                 },
               ),
       ),
@@ -156,9 +165,9 @@ class RegistredCustomerScreen extends ConsumerWidget {
   }
 }
 
-class _RegisterCustomerWidget extends StatelessWidget {
+class RegisterCustomerWidget extends StatelessWidget {
   final UsualCustomerEntity entity;
-  const _RegisterCustomerWidget(this.entity);
+  const RegisterCustomerWidget(this.entity, {super.key});
 
   @override
   Widget build(BuildContext context) {

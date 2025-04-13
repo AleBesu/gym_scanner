@@ -19,13 +19,10 @@ class SubScreenFinance extends StatelessWidget {
               child: const GraphFinancesCasualCustomers(),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SizedBox(
-              width: size.width * 0.9,
-              height: size.height * 0.35,
-              child: const GraphFinancesUsualCustomers(),
-            ),
+          SizedBox(
+            width: size.width * 0.9,
+            height: size.height * 0.38,
+            child: GraphFinancesUsualCustomers(),
           )
         ],
       ),

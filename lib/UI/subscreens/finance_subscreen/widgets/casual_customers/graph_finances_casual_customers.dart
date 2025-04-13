@@ -79,18 +79,26 @@ class _GraphFinancesState extends ConsumerState<GraphFinancesCasualCustomers> {
                         )
                         .toList(),
                   ),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Text("Error al cargar datos");
+              builder: (context, statitics) {
+                if (statitics.hasError) {
+                  return const Text("Error al cargar datos");
                 }
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
+                if (statitics.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
                 }
-                return LineChart(
-                    curve: Curves.linear,
-                    ConfigsGraphs.getConfig(context,
+                return FutureBuilder(
+                    future: ConfigsGraphs.getConfig(context, ref,
                         timeInterval: timeTypeSelectedList[currectTimeInverval],
-                        coordenatesValuesList: snapshot.data!));
+                        coordenatesValuesList: statitics.data!),
+                    builder: (context, snapshot) {
+                      return LineChart(
+                          curve: Curves.linear,
+                          snapshot.data ??
+                              LineChartData(
+                                  titlesData: const FlTitlesData(
+                                      topTitles: AxisTitles(
+                                          axisNameWidget: Text('erroorrrr')))));
+                    });
               }),
         ),
       ],

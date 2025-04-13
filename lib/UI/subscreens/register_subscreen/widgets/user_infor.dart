@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/Providers/current_customer_provider.dart';
 import 'package:gym_scanner/UI/widgets/info_text.dart';
-import 'package:gym_scanner/UI/subscreens/register_subscreen/widgets/statusUserWiidget.dart';
+
 import 'package:gym_scanner/domain/customer_entity.dart';
 
 class UserInfoWidget extends ConsumerWidget {

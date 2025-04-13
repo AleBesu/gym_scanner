@@ -65,6 +65,22 @@ lastDateRegitred TEXT
     );
   }
 
+  Future<DateTime> get startTimeDate async {
+    final db = await database;
+    final datesRegistersTable = await db.query('startDateTable');
+
+    return DateTime.parse(
+        datesRegistersTable.first['startTimeDate'].toString());
+  }
+
+  Future<DateTime> get lastDateRegitred async {
+    final db = await database;
+    final datesRegistersTable = await db.query('datesRegistersTable');
+
+    return DateTime.parse(
+        datesRegistersTable.last['lastDateRegitred'].toString());
+  }
+
   Future<List<Map<String, dynamic>>> getUsualCustomersList() async {
     final db = await database;
 
@@ -253,10 +269,22 @@ lastDateRegitred TEXT
     final daysWithoutRegistrer =
         DateTime.now().difference(lastDateRegister).inDays;
 
+    // if (DateTime.now().year > lastDateRegister.year) {
+    //   db.insert(_casualsCustomersStatisticsTable, {
+    //     'ListOfcasualCustomerListJSON': jsonEncode([[]])
+    //   });
+    // }
+
     if (DateTime.now().year > lastDateRegister.year) {
-      db.insert(_casualsCustomersStatisticsTable, {
-        'ListOfcasualCustomerListJSON': jsonEncode([[]])
-      });
+      // Calcular días desde inicio del año hasta hoy
+      final startOfYear = DateTime(DateTime.now().year);
+      final daysInYear = DateTime.now().difference(startOfYear).inDays + 1;
+
+      // Crear lista con todos los días del año (hasta hoy) inicializados como vacíos
+      final newYearDays = List.generate(daysInYear, (_) => []);
+
+      await db.insert(_casualsCustomersStatisticsTable,
+          {'ListOfcasualCustomerListJSON': jsonEncode(newYearDays)});
     }
 
     List<List<Map<String, dynamic>>> yearWithDaysListRegitred =

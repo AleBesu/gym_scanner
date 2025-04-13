@@ -1,48 +1,93 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gym_scanner/UI/Providers/Statitics/casual_user_payment_statitics_provider.dart';
 
 import 'package:gym_scanner/core/Date/time_inverval.dart';
 
 abstract class ConfigsGraphs {
-  static LineChartData getConfig(BuildContext context,
+  static Future<LineChartData> getConfig(BuildContext context, WidgetRef ref,
       {TimeInverval timeInterval = TimeInverval.week,
-      required List<FlSpot> coordenatesValuesList}) {
+      required List<FlSpot> coordenatesValuesList}) async {
+    DateTime _startDate =
+        await ref.read(casualUserPaymentStatiticsProvider.notifier).startDate;
+    int daysSinceInitYear = _startDate.year == DateTime.now().year
+        ? _startDate.difference(DateTime(DateTime.now().year)).inDays
+        : 0;
+
+    coordenatesValuesList = coordenatesValuesList.map(
+      (spot) {
+        return FlSpot(spot.x + daysSinceInitYear, spot.y);
+      },
+    ).toList();
+
     switch (timeInterval) {
       case TimeInverval.week:
-        return _getWeekConfig(context, spotsList: coordenatesValuesList);
+        return _getWeekConfig(
+          context,
+          spotsList: coordenatesValuesList,
+        );
 
       case TimeInverval.month:
-        return _getMonthConfig(context, spotsList: coordenatesValuesList);
+        return await _getMonthConfig(context, ref,
+            spotsList: coordenatesValuesList, startDate: _startDate);
 
       case TimeInverval.year:
-        return _getYearConfig(context, spotsList: coordenatesValuesList);
+        return _getYearConfig(context,
+            spotsList: coordenatesValuesList, startDate: _startDate);
 
       default:
         throw ("introduce un Time Invertal Valido");
     }
   }
 
-  static LineChartData _getWeekConfig(BuildContext context,
-      {required List<FlSpot> spotsList}) {
+  static LineChartData _getWeekConfig(
+    BuildContext context, {
+    required List<FlSpot> spotsList,
+  }) {
     Size size = MediaQuery.of(context).size;
 
+    int lastMondayIndex = DateTime.now()
+        .subtract(Duration(days: DateTime.now().weekday - DateTime.monday))
+        .difference(DateTime(DateTime.now().year))
+        .inDays;
+    int lastDayWeek = lastMondayIndex + 6;
+/*hya una posicion de mas en la primera semana del mes el primer lunes aparece como menos dos y deberia ser menos 3
+
+
+
+
+
+*/
     return LineChartData(
-        lineTouchData:
-            const LineTouchData(touchTooltipData: LineTouchTooltipData()),
+        borderData: FlBorderData(border: Border.all(color: Colors.white)),
+        lineTouchData: LineTouchData(touchTooltipData: LineTouchTooltipData(
+          getTooltipItems: (touchedSpots) {
+            return touchedSpots.map(
+              (touchedSpot) {
+                return LineTooltipItem(touchedSpot.y.toInt().toString(),
+                    const TextStyle(color: Colors.green));
+              },
+            ).toList();
+          },
+        )),
         lineBarsData: [
           LineChartBarData(
-              color: spotsList.length <= 1 ||
-                      spotsList.last.y >= spotsList[spotsList.length - 2].y
-                  ? Colors.green
-                  : Colors.red,
-              spots: spotsList.length < 7
-                  ? spotsList.sublist(0, spotsList.length)
-                  : spotsList.sublist(0, 7))
+            color: spotsList.length <= 1 ||
+                    spotsList.last.y >= spotsList[spotsList.length - 2].y
+                ? Colors.green
+                : Colors.red,
+            spots: spotsList
+                .where(
+                  (spot) => spot.x >= lastMondayIndex && spot.x <= lastDayWeek,
+                )
+                .toList(),
+          )
         ],
         minY: 0,
         maxY: 80,
-        minX: 0,
-        maxX: 6,
+        minX: lastMondayIndex.toDouble(),
+        maxX: lastDayWeek.toDouble(),
         gridData: FlGridData(
           verticalInterval: 1,
           horizontalInterval: 5,
@@ -58,19 +103,23 @@ abstract class ConfigsGraphs {
         titlesData: FlTitlesData(
             bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
-                    maxIncluded: false,
                     getTitlesWidget: (value, meta) {
-                      switch (value) {
+                      int weekDay = value.toInt() - lastMondayIndex;
+
+                      switch (weekDay) {
                         case 0:
                           return const Text("L");
                         case 1:
                           return const Text("M");
                         case 2:
                           return const Text("M");
+
                         case 3:
                           return const Text("J");
+
                         case 4:
                           return const Text("V");
+
                         case 5:
                           return const Text("S");
 
@@ -78,7 +127,7 @@ abstract class ConfigsGraphs {
                           return const Text("D");
 
                         default:
-                          return const Text("data");
+                          return const Text("vacio");
                       }
                     },
                     interval: 1,
@@ -97,25 +146,56 @@ abstract class ConfigsGraphs {
                 const AxisTitles(sideTitles: SideTitles(showTitles: false))));
   }
 
-  static LineChartData _getMonthConfig(BuildContext context,
-      {required List<FlSpot> spotsList}) {
+  static Future<LineChartData> _getMonthConfig(
+    BuildContext context,
+    WidgetRef ref, {
+    required List<FlSpot> spotsList,
+    required DateTime startDate,
+  }) async {
     Size size = MediaQuery.of(context).size;
 
+    double minX = DateTime(DateTime.now().year, DateTime.now().month)
+            .difference(DateTime(DateTime.now().year))
+            .inDays
+            .toDouble() +
+        1;
+    double maxX = DateTime(DateTime.now().year, DateTime.now().month)
+            .difference(DateTime(DateTime.now().year))
+            .inDays
+            .toDouble() +
+        DateTime(DateTime.now().year, DateTime.now().month + 1)
+            .difference(DateTime(DateTime.now().year, DateTime.now().month))
+            .inDays
+            .toDouble();
+
     return LineChartData(
+        borderData: FlBorderData(border: Border.all(color: Colors.white)),
+        lineTouchData: LineTouchData(touchTooltipData: LineTouchTooltipData(
+          getTooltipItems: (touchedSpots) {
+            return touchedSpots.map(
+              (touchedSpot) {
+                return LineTooltipItem(touchedSpot.y.toInt().toString(),
+                    const TextStyle(color: Colors.green));
+              },
+            ).toList();
+          },
+        )),
         lineBarsData: [
           LineChartBarData(
               color: spotsList.length <= 1 ||
                       spotsList.last.y >= spotsList[spotsList.length - 2].y
                   ? Colors.green
                   : Colors.red,
-              spots: spotsList.length < 31
-                  ? spotsList.sublist(0, spotsList.length)
-                  : spotsList.sublist(0, 31))
+              spots: spotsList
+                  .where(
+                    (element) => element.x >= minX && element.x <= maxX,
+                  )
+                  .toList())
         ],
         minY: 0,
         maxY: 80,
-        minX: 0,
-        maxX: 30,
+        minX: minX,
+        maxX: maxX,
         gridData: FlGridData(
           verticalInterval: 7,
           horizontalInterval: 5,
@@ -132,12 +212,11 @@ abstract class ConfigsGraphs {
             bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                     getTitlesWidget: (value, meta) {
-                      return Text("${(value + 1).toInt()}");
+                      return Text("${(value - minX + 1).toInt()}");
                     },
-                    maxIncluded: false,
-                    interval: 7,
+                    interval: 2,
                     showTitles: true,
-                    reservedSize: size.height * 0.03)),
+                    reservedSize: size.height * 0.07)),
             leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                     interval: 10,
@@ -150,27 +229,43 @@ abstract class ConfigsGraphs {
   }
 
   static LineChartData _getYearConfig(BuildContext context,
-      {required List<FlSpot> spotsList}) {
+      {required List<FlSpot> spotsList, required DateTime startDate}) {
     Size size = MediaQuery.of(context).size;
+    if (spotsList.length >= 2) {
+      spotsList = _calculateMonthlyAverage(spotsList, 15);
+    }
 
     return LineChartData(
+        borderData: FlBorderData(border: Border.all(color: Colors.white)),
+        lineTouchData: LineTouchData(touchTooltipData: LineTouchTooltipData(
+          getTooltipItems: (touchedSpots) {
+            return touchedSpots.map(
+              (touchedSpot) {
+                return LineTooltipItem(touchedSpot.y.toInt().toString(),
+                    const TextStyle(color: Colors.green));
+              },
+            ).toList();
+          },
+        )),
         lineBarsData: [
           LineChartBarData(
               color: spotsList.length <= 1 ||
                       spotsList.last.y >= spotsList[spotsList.length - 2].y
                   ? Colors.green
                   : Colors.red,
-              spots: spotsList.length < 36
-                  ? spotsList.sublist(0, spotsList.length)
-                  : spotsList.sublist(0, 36))
+              // spots: spotsList.length < 36
+              //     ? spotsList.sublist(0, spotsList.length)
+              //     : spotsList.sublist(0, 36)
+
+              spots: spotsList)
         ],
         minY: 0,
         maxY: 80,
         minX: 0,
-        maxX: 36,
+        maxX: 365,
         gridData: FlGridData(
-          verticalInterval: 1,
-          horizontalInterval: 5,
+          verticalInterval: 15.2,
+          horizontalInterval: 15.2,
           getDrawingVerticalLine: (value) {
             return const FlLine(
                 color: Colors.white10, dashArray: [5, 5], strokeWidth: 1);
@@ -185,39 +280,37 @@ abstract class ConfigsGraphs {
                 sideTitles: SideTitles(
                     getTitlesWidget: (value, meta) {
                       switch (value) {
-                        case 0:
+                        case 0: // Enero
                           return const Text("E");
-                        case 3:
+                        case 31: // Febrero
                           return const Text("F");
-                        case 6:
+                        case 59: // Marzo
                           return const Text("M");
-                        case 9:
+                        case 90: // Abril
                           return const Text("A");
-                        case 12:
+                        case 120: // Mayo
                           return const Text("M");
-                        case 15:
+                        case 151: // Junio
                           return const Text("J");
-
-                        case 18:
+                        case 181: // Julio
                           return const Text("J");
-
-                        case 21:
+                        case 212: // Agosto
                           return const Text("A");
-                        case 24:
+                        case 243: // Septiembre
                           return const Text("S");
-                        case 27:
+                        case 273: // Octubre
                           return const Text("O");
-                        case 30:
+                        case 304: // Noviembre
                           return const Text("N");
-                        case 33:
+                        case 334: // Diciembre
                           return const Text("D");
 
                         default:
-                          return const Text("w");
+                          return const Text("");
                       }
                     },
                     maxIncluded: false,
-                    interval: 3,
+                    interval: 1,
                     showTitles: true,
                     reservedSize: size.height * 0.03)),
             leftTitles: AxisTitles(
@@ -229,5 +322,34 @@ abstract class ConfigsGraphs {
                 const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             rightTitles:
                 const AxisTitles(sideTitles: SideTitles(showTitles: false))));
+  }
+
+  static List<FlSpot> _calculateMonthlyAverage(
+      List<FlSpot> listToCalculate, int interval) {
+    interval =
+        listToCalculate.length < interval ? listToCalculate.length : interval;
+
+    List<FlSpot> newList = [];
+
+    int count = 1;
+    for (int i = 0; i < listToCalculate.length; i += interval) {
+      final lastIndex = (i + interval) > listToCalculate.length - 1
+          ? listToCalculate.length - 1
+          : i + interval - 1;
+      double averagedSpotY = 0;
+      // listToCalculate.sublist(i, lastIndex).map((e) {
+      //   averagedSpotY += e.y;
+      // });
+      for (int y = i; y <= lastIndex; y++) {
+        averagedSpotY += listToCalculate[y].y;
+      }
+
+      averagedSpotY /= (lastIndex - i + 1);
+      count++;
+      newList.add(FlSpot(
+          listToCalculate[i].x.toDouble(), averagedSpotY.toInt().toDouble()));
+    }
+
+    return newList;
   }
 }
