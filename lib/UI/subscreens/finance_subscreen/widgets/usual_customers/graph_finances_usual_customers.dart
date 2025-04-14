@@ -27,16 +27,22 @@ class _GraphFinancesUsualCustomersState
   @override
   void initState() {
     super.initState();
-    _loadInitialData(ref);
+    _loadInitialData();
   }
 
-  Future<void> _loadInitialData(WidgetRef ref) async {
+  Future<void> _loadInitialData() async {
     startDateTime = await ref
         .read(usualUserPaymentStatiticsProvider.notifier)
         .getStartDateTime();
     allYearsStatiticPro = await ref
         .read(usualUserPaymentStatiticsProvider.notifier)
         .getAllYearsStatics();
+
+    if (allYearsStatiticPro != null) {
+      yearSelected = allYearsStatiticPro!.length - 1;
+    } else {
+      throw (' allYearsStatiticPro cannot be null');
+    }
 
     setState(() {
       _startMonth = startDateTime.month;
@@ -50,9 +56,11 @@ class _GraphFinancesUsualCustomersState
 
   Future<void> selectYear(int yearToSelect) async {
     setState(() {
-      _futureYearStatistics = ref
-          .read(usualUserPaymentStatiticsProvider.notifier)
-          .getAYearStatitics(yearSelected: yearToSelect);
+      // _futureYearStatistics = ref
+      //     .read(usualUserPaymentStatiticsProvider.notifier)
+      //     .getAYearStatitics(yearSelected: yearToSelect);
+
+      yearSelected = yearToSelect;
     });
   }
 
@@ -73,6 +81,13 @@ class _GraphFinancesUsualCustomersState
           final usualUserPaymentStatitic = snapshot.data!;
 
           return BarChart(BarChartData(
+              gridData: FlGridData(
+                drawVerticalLine: false,
+                horizontalInterval: 25,
+                getDrawingHorizontalLine: (value) {
+                  return const FlLine(color: Colors.white10, strokeWidth: 2);
+                },
+              ),
               borderData: FlBorderData(
                   border: Border.all(
                       color: Colors.white, width: size.width * 0.001)),
@@ -106,19 +121,21 @@ class _GraphFinancesUsualCustomersState
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: (allYearsStatiticPro ?? []).length <= 1
-                                ? Text(DateTime.now().year.toString())
+                                ? Text(startDateTime.year.toString())
                                 : DropdownButton(
-                                    value: (DateTime.now().year - 1).toString(),
+                                    value: yearSelected,
                                     items: List.generate(
                                         allYearsStatiticPro!.length, (index) {
                                       int currentYear =
                                           startDateTime.year + index;
 
                                       return DropdownMenuItem(
-                                          value: currentYear.toString(),
+                                          value: index,
                                           child: Text(currentYear.toString()));
                                     }),
-                                    onChanged: (value) {},
+                                    onChanged: (value) {
+                                      selectYear(value!);
+                                    },
                                   ),
                           )
                       ],

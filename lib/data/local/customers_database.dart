@@ -205,12 +205,11 @@ lastDateRegitred TEXT
 
   Future<List<List<List<CasualCustomer>>>> getCasualCustomerStatitics() async {
     final db = await database;
-
-    await _fillDaysWithOutRegister();
-
-    final casualUserTable = await db.query(
+    List<Map<String, Object?>> casualUserTable = await db.query(
       _casualsCustomersStatisticsTable,
     );
+
+    await _fillDaysWithOutRegister();
 
     return casualUserTable.map(
       (year) {

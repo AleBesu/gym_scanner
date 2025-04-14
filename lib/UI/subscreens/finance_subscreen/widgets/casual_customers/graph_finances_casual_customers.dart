@@ -91,13 +91,11 @@ class _GraphFinancesState extends ConsumerState<GraphFinancesCasualCustomers> {
                         timeInterval: timeTypeSelectedList[currectTimeInverval],
                         coordenatesValuesList: statitics.data!),
                     builder: (context, snapshot) {
-                      return LineChart(
-                          curve: Curves.linear,
-                          snapshot.data ??
-                              LineChartData(
-                                  titlesData: const FlTitlesData(
-                                      topTitles: AxisTitles(
-                                          axisNameWidget: Text('erroorrrr')))));
+                      return LineChart(snapshot.data ??
+                          LineChartData(
+                              titlesData: const FlTitlesData(
+                                  topTitles: AxisTitles(
+                                      axisNameWidget: Text('erroorrrr')))));
                     });
               }),
         ),

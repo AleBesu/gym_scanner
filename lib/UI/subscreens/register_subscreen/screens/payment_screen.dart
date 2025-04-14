@@ -80,15 +80,26 @@ class UserCasualRegisterBotton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Size size = MediaQuery.of(context).size;
     return InkWell(
-      onTap: () {
-        showPaymentForm(
+      onTap: () async {
+        await showPaymentForm(
           context,
           ref,
           monthData: false,
-          onValue: (value) {
+          onValue: (value) async {
             ref
                 .read(casualUserPaymentStatiticsProvider.notifier)
                 .addRegister(CasualCustomer(value), dayToAddIndex: 0);
+
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              margin: EdgeInsets.all(size.height * 0.02),
+              behavior: SnackBarBehavior.floating,
+              content: Text(
+                "Cliente casual registrado",
+                style: TextStyle(color: Colors.white),
+              ),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ));
           },
         );
       },

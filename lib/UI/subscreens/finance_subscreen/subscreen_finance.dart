@@ -12,7 +12,7 @@ class SubScreenFinance extends StatelessWidget {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.only(top: size.height * 0.04),
             child: SizedBox(
               width: size.width * 0.9,
               height: size.height * 0.35,
