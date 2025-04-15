@@ -246,9 +246,14 @@ lastDateRegitred TEXT
     // ).toList();
   }
 
+  bool isFilling = false;
   Future<void> _fillDaysWithOutRegister() async {
     final db = await database;
 
+    if (isFilling) {
+      return;
+    }
+    isFilling = true;
     List<Map<String, Object?>> casualUserTableValues = await db.query(
       _casualsCustomersStatisticsTable,
     );
@@ -321,6 +326,8 @@ lastDateRegitred TEXT
       await db.insert(_datesRegistersTable,
           {'lastDateRegitred': DateTime.now().toIso8601String()});
     }
+
+    isFilling = false;
   }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

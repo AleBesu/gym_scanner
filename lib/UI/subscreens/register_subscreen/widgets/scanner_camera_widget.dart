@@ -54,12 +54,21 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
                 final qrSeleccionado = barcodes.barcodes[0];
 
                 if (ref.watch(usualCustomerListProvider).map(
-                  (e) {
-                    return e.id;
-                  },
-                ).contains(int.tryParse(
-                  qrSeleccionado.rawValue.toString(),
-                ))) {
+                      (e) {
+                        return e.id;
+                      },
+                    ).contains(int.tryParse(
+                      qrSeleccionado.rawValue.toString(),
+                    )) &&
+                    (ref.watch(usualCustomerListProvider).firstWhere(
+                          (usualCustomer) {
+                            return usualCustomer.id ==
+                                int.tryParse(
+                                  qrSeleccionado.rawValue.toString(),
+                                );
+                          },
+                        )).expiratioDate!.difference(DateTime.now()).inDays >=
+                        0) {
                   ref
                       .read(currentUsualCustomerSelectedProvider.notifier)
                       .state = ref.watch(usualCustomerListProvider).firstWhere(

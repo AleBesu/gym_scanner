@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/Providers/Statitics/casual_user_payment_statitics_provider.dart';
+import 'package:gym_scanner/UI/Providers/year_selected_provider.dart';
 
 import 'package:gym_scanner/core/Date/time_inverval.dart';
 
@@ -11,8 +12,8 @@ abstract class ConfigsGraphs {
       required List<FlSpot> coordenatesValuesList}) async {
     DateTime _startDate =
         await ref.read(casualUserPaymentStatiticsProvider.notifier).startDate;
-    int daysSinceInitYear = _startDate.year == DateTime.now().year
-        ? _startDate.difference(DateTime(DateTime.now().year)).inDays
+    int daysSinceInitYear = ref.watch(yearSelectedIndexProvider) == 0
+        ? _startDate.difference(DateTime(_startDate.year)).inDays
         : 0;
 
     coordenatesValuesList = coordenatesValuesList.map(

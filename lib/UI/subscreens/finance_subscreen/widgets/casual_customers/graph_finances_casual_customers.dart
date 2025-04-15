@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/Providers/Statitics/casual_user_payment_statitics_provider.dart';
+import 'package:gym_scanner/UI/Providers/year_selected_provider.dart';
 import 'package:gym_scanner/UI/subscreens/finance_subscreen/widgets/casual_customers/configs_graphs.dart';
 import 'package:gym_scanner/core/Date/time_inverval.dart';
 
@@ -36,6 +37,35 @@ class _GraphFinancesState extends ConsumerState<GraphFinancesCasualCustomers> {
   ];
 
   int currectTimeInverval = 0;
+  // int yearSelectedIndex = 0;
+  DateTime startDateTime = DateTime(1);
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => loadInitialData(),
+    );
+  }
+
+  Future<void> loadInitialData() async {
+    if (ref.read(casualUserPaymentStatiticsProvider).length > 1) {
+      ref.read(yearSelectedIndexProvider.notifier).state =
+          ref.read(casualUserPaymentStatiticsProvider).length - 1;
+    }
+
+    await ref.read(casualUserPaymentStatiticsProvider.notifier).loadData();
+
+    // yearSelectedIndex = ref.read(casualUserPaymentStatiticsProvider).length - 1;
+
+    startDateTime =
+        await ref.read(casualUserPaymentStatiticsProvider.notifier).startDate;
+
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -64,6 +94,27 @@ class _GraphFinancesState extends ConsumerState<GraphFinancesCasualCustomers> {
                       children: const [Text("S"), Text("M"), Text("A")]),
                 ),
               ),
+              ref.read(casualUserPaymentStatiticsProvider).length <= 1
+                  ? Text(startDateTime.year.toString())
+                  : DropdownButton(
+                      value: ref.watch(yearSelectedIndexProvider),
+                      items: List.generate(
+                        ref.read(casualUserPaymentStatiticsProvider).length,
+                        (index) {
+                          int currentYear = startDateTime.year + index;
+
+                          return DropdownMenuItem(
+                              value: index,
+                              child: Text(currentYear.toString()));
+                        },
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          ref.read(yearSelectedIndexProvider.notifier).state =
+                              value!;
+                        });
+                      },
+                    ),
             ],
           ),
         ),
@@ -71,7 +122,7 @@ class _GraphFinancesState extends ConsumerState<GraphFinancesCasualCustomers> {
           child: FutureBuilder(
               future: ref
                   .read(casualUserPaymentStatiticsProvider.notifier)
-                  .getRegistersCoordenates()
+                  .getRegistersCoordenates(ref.watch(yearSelectedIndexProvider))
                   .then(
                     (value) => value
                         .map(

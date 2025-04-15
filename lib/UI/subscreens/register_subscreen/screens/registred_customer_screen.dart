@@ -28,13 +28,16 @@ class RegistredCustomerScreen extends ConsumerWidget {
         appBar: AppBar(
           actions: [
             if (!ref.watch(isSelectingModeProvider))
-              InkWell(
-                  onTap: () {
-                    showSearch(
-                        context: context,
-                        delegate: SeachUsualCustomerDelegate(customersList));
-                  },
-                  child: const Icon(Icons.search)),
+              Padding(
+                padding: EdgeInsets.all(size.width * 0.05),
+                child: InkWell(
+                    onTap: () {
+                      showSearch(
+                          context: context,
+                          delegate: SeachUsualCustomerDelegate(customersList));
+                    },
+                    child: const Icon(Icons.search)),
+              ),
             if (ref.watch(isSelectingModeProvider))
               selectedElements.length < customersList.length
                   ? Padding(

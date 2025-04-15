@@ -42,7 +42,7 @@ Future<File?> getNewQrCodeFile(String text) async {
     dstY: (whiteBackGround.height - rescaledImage.height) ~/ 2,
   );
 
-  String fileName = String.fromCharCodes([]);
+  // String fileName = String.fromCharCodes([]);
   File qrFilePng =
       File("${documentsDirecty.path}qr_code${getRandomString(lenght: 15)}.png");
   await qrFilePng.writeAsBytes(img.encodePng(makedImage));

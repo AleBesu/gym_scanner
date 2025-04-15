@@ -7,7 +7,7 @@ import 'package:sqflite/sqflite.dart';
 final int sinceFirstDay = 30;
 
 final casualUserPaymentStatiticsProvider = StateNotifierProvider<
-    _CasualUserPaymentStateNotifier, List<List<CasualCustomer>>>(
+    _CasualUserPaymentStateNotifier, List<List<List<CasualCustomer>>>>(
   (ref) {
     return _CasualUserPaymentStateNotifier([
       // ...List.generate(
@@ -19,14 +19,22 @@ final casualUserPaymentStatiticsProvider = StateNotifierProvider<
 );
 
 class _CasualUserPaymentStateNotifier
-    extends StateNotifier<List<List<CasualCustomer>>> {
+    extends StateNotifier<List<List<List<CasualCustomer>>>> {
   _CasualUserPaymentStateNotifier(super.state);
   CustomersDatabase customersDatabase = CustomersDatabase.instance;
-
+  bool isLoading = false;
   Future<void> loadData() async {
-    final allYearsList = await customersDatabase.getCasualCustomerStatitics();
+    if (!isLoading) {
+      try {
+        isLoading = true;
+        final allYearsList =
+            await customersDatabase.getCasualCustomerStatitics();
 
-    state = allYearsList.last;
+        state = allYearsList;
+      } finally {
+        isLoading = false;
+      }
+    }
   }
 
   void addRegister(CasualCustomer newRegister,
@@ -36,13 +44,13 @@ class _CasualUserPaymentStateNotifier
     await customersDatabase.addCasualCustomerStatitic(newRegister);
   }
 
-  Future<List<Coordinate2d>> getRegistersCoordenates() async {
+  Future<List<Coordinate2d>> getRegistersCoordenates(int yearSelected) async {
     await loadData();
     List<Coordinate2d> coordenatesList = [];
 
-    for (int x = 0; x < state.length; x++) {
-      coordenatesList
-          .add(Coordinate2d(x.toDouble(), state[x].length.toDouble()));
+    for (int x = 0; x < state[yearSelected].length; x++) {
+      coordenatesList.add(
+          Coordinate2d(x.toDouble(), state[yearSelected][x].length.toDouble()));
     }
 
     return coordenatesList;
