@@ -10,6 +10,7 @@ class UsualCustomerEntity {
   DateTime? creationDate;
   DateTime? lastPayment;
   DateTime? expiratioDate;
+  DateTime? lastAccessDateTime;
 
   UsualCustomerEntity(this.name,
       {required this.userImage,
@@ -17,7 +18,8 @@ class UsualCustomerEntity {
       this.id,
       this.lastPayment,
       this.creationDate,
-      this.expiratioDate}) {}
+      this.expiratioDate,
+      this.lastAccessDateTime}) {}
 
   int get availablesDays {
     return expiratioDate!.difference(DateTime.now()).inDays + 1;
@@ -32,6 +34,7 @@ class UsualCustomerEntity {
       creationDate: DateTime.parse(map["creationDate"]),
       lastPayment: DateTime.parse(map["lastPayment"]),
       expiratioDate: DateTime.parse(map["expiratioDate"]),
+      lastAccessDateTime: DateTime.parse(map['lastAccessDateTime']),
     );
   }
 
@@ -43,7 +46,8 @@ class UsualCustomerEntity {
       "qrCodeImagePath": _setImage(qrCodeImage!),
       "creationDate": creationDate!.toIso8601String(),
       "lastPayment": lastPayment!.toIso8601String(),
-      "expiratioDate": expiratioDate!.toIso8601String()
+      "expiratioDate": expiratioDate!.toIso8601String(),
+      'lastAccessDateTime': lastAccessDateTime!.toIso8601String(),
     };
   }
 

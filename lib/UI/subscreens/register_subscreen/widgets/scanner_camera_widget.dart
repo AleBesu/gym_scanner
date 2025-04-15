@@ -65,6 +65,7 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
                             .toString() !=
                         qrSeleccionado.rawValue.toString()
                     : true) {
+                  //showCurrentUsualCustomerInScreen
                   ref
                       .read(currentUsualCustomerSelectedProvider.notifier)
                       .state = ref.watch(usualCustomerListProvider).firstWhere(
@@ -75,9 +76,22 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
                           );
                     },
                   );
-                  await audioplayer.setAsset("assets/sounds/successfull.mp3");
-                  await audioplayer.play();
-                  await Future.delayed(const Duration(seconds: 1));
+
+                  //updateLastAccess
+                  ref.read(usualCustomerListProvider.notifier).updateLastAccess(
+                      ref.read(currentUsualCustomerSelectedProvider)!);
+                  //
+                  //rproduce sound
+                  if (!checkIfLastAccessValueIsToday(ref
+                      .read(currentUsualCustomerSelectedProvider)!
+                      .lastAccessDateTime!)) {
+                    await audioplayer.setAsset("assets/sounds/successfull.mp3");
+                    await audioplayer.play();
+                    await Future.delayed(const Duration(seconds: 1));
+                  } else {
+                    await audioplayer.setAsset("assets/sounds/sound_error.mp3");
+                    await audioplayer.play();
+                  }
                 } else if (ref
                         .read(currentUsualCustomerSelectedProvider)!
                         .id!
@@ -169,4 +183,10 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
       },
     ).contains(int.tryParse(userID));
   }
+}
+
+bool checkIfLastAccessValueIsToday(DateTime lastAccessDate) {
+  return (lastAccessDate.year == DateTime.now().year &&
+      lastAccessDate.month == DateTime.now().month &&
+      lastAccessDate.day == DateTime.now().day);
 }

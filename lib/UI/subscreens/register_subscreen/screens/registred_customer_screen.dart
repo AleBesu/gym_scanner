@@ -207,7 +207,8 @@ class RegisterCustomerWidget extends StatelessWidget {
                     "Días restantes: ${entity.availablesDays}",
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  Text("Desde: ${dateTimeFormat(entity.creationDate!)}")
+                  Text(
+                      "Desde: ${dateTimeFormatDayMonthYear(entity.creationDate!)}")
                 ],
               ),
             ),

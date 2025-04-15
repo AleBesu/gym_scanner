@@ -29,6 +29,7 @@ class CustomerRegisterScreen extends ConsumerWidget {
                       .addCustomer(UsualCustomerEntity(
                         creationDate: DateTime.now(),
                         lastPayment: DateTime.now(),
+                        lastAccessDateTime: DateTime.now(),
                         userImage: imageSelectedPro,
                         nameController.text,
                         expiratioDate: DateTime.now().add(Duration(

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/Providers/current_customer_provider.dart';
+import 'package:gym_scanner/UI/subscreens/register_subscreen/widgets/scanner_camera_widget.dart';
 import 'package:gym_scanner/UI/widgets/info_text.dart';
+import 'package:gym_scanner/core/Date/date_time_format.dart';
 
 import 'package:gym_scanner/domain/customer_entity.dart';
 
@@ -109,6 +111,7 @@ class UserInfoWidget extends ConsumerWidget {
                       ),
                       UserStatusWidget(
                         availableStatus: entity.availablesDays >= 1,
+                        lastAccess: entity.lastAccessDateTime!,
                       )
                     ],
                   );
@@ -120,7 +123,9 @@ class UserInfoWidget extends ConsumerWidget {
 
 class UserStatusWidget extends StatefulWidget {
   bool availableStatus;
-  UserStatusWidget({super.key, this.availableStatus = true});
+  final DateTime lastAccess;
+  UserStatusWidget(
+      {super.key, this.availableStatus = true, required this.lastAccess});
 
   @override
   State<UserStatusWidget> createState() => _UserStatusWidgetState();
@@ -142,7 +147,11 @@ class _UserStatusWidgetState extends State<UserStatusWidget> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: availableStatus ? Colors.green : Colors.red,
+        color: !availableStatus
+            ? Colors.red
+            : checkIfLastAccessValueIsToday(widget.lastAccess)
+                ? Colors.amber
+                : Colors.green,
       ),
       padding: const EdgeInsets.all(10),
       width: size.width * 0.9,
@@ -151,15 +160,28 @@ class _UserStatusWidgetState extends State<UserStatusWidget> {
         children: [
           Row(
             children: [
-              availableStatus
-                  ? const Icon(Icons.verified)
-                  : const Icon(Icons.error),
-              Text(availableStatus ? "Acceso Permitido" : "Acceso Denegado")
+              !availableStatus
+                  ? const Icon(Icons.error)
+                  : checkIfLastAccessValueIsToday(widget.lastAccess)
+                      ? Icon(Icons.warning)
+                      : Icon(Icons.verified),
+              Text(
+                !availableStatus
+                    ? "Acceso Denegado"
+                    : checkIfLastAccessValueIsToday(widget.lastAccess)
+                        ? 'Alerta'
+                        : "Acceso Permitido",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )
             ],
           ),
           Padding(
             padding: EdgeInsets.only(left: size.width * 0.06),
-            child: const Text("Ultima Entrada: 3:47pm-18-5-25 "),
+            child: InfoText(
+                info: 'Última entrada',
+                value: checkIfLastAccessValueIsToday(widget.lastAccess)
+                    ? "Hoy a la${widget.lastAccess.hour == 1 ? '' : 's'}${dateTimeFormatOnlyHourAndMinutes(widget.lastAccess)}"
+                    : dateTimeFormatHourDayMonth(widget.lastAccess)),
           )
         ],
       ),

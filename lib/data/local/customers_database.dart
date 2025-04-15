@@ -26,7 +26,7 @@ class CustomersDatabase {
       version: 1,
       onCreate: (db, version) {
         db.execute(
-          "CREATE TABLE $_table (id INTEGER NOT NULL,name TEXT,userImagePath TEXT,qrCodeImagePath TEXT ,creationDate TEXT,lastPayment TEXT,expiratioDate TEXT)",
+          "CREATE TABLE $_table (id INTEGER NOT NULL,name TEXT,userImagePath TEXT,qrCodeImagePath TEXT ,creationDate TEXT,lastPayment TEXT,expiratioDate TEXT,lastAccessDateTime TEXT)",
         );
         //the estructore of  _casualsCustomersStatisticsTable  is A List(table or too all years) with lists(each year) of lists of casualCustomer//
         db.execute('''
@@ -160,6 +160,15 @@ lastDateRegitred TEXT
         ).toList();
       },
     ).toList();
+  }
+
+  Future<void> updateUsualCustomerLastAccess(UsualCustomerEntity entity,
+      {required DateTime lastAccessDateTime}) async {
+    final db = await database;
+
+    db.update(
+        _table, {'lastAccessDateTime': lastAccessDateTime.toIso8601String()},
+        where: 'id = ?', whereArgs: [entity.id]);
   }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -66,4 +66,11 @@ class _CustomersProvider extends StateNotifier<List<UsualCustomerEntity>> {
     await db.deleteUsualCustomer(elementsToRemoveID);
     loadInfoFromDatabase();
   }
+
+  Future<void> updateLastAccess(UsualCustomerEntity entity) async {
+    await loadInfoFromDatabase();
+
+    localDataBase.updateUsualCustomerLastAccess(entity,
+        lastAccessDateTime: DateTime.now());
+  }
 }
