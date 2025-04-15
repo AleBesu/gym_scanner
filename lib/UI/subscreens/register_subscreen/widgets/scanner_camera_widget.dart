@@ -13,6 +13,8 @@ final isCameraUsingProvider = StateProvider.autoDispose<bool>(
   (ref) => false,
 );
 
+bool _isShowingErrorSnackBar = false;
+
 final MobileScannerController cameraController = MobileScannerController();
 
 class ScannerCameraWidget extends ConsumerStatefulWidget {
@@ -53,28 +55,22 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
 
                 final qrSeleccionado = barcodes.barcodes[0];
 
-                if (ref.watch(usualCustomerListProvider).map(
-                      (e) {
-                        return e.id;
-                      },
-                    ).contains(int.tryParse(
-                      qrSeleccionado.rawValue.toString(),
-                    )) &&
-                    (ref.watch(usualCustomerListProvider).firstWhere(
-                          (usualCustomer) {
-                            return usualCustomer.id ==
-                                int.tryParse(
-                                  qrSeleccionado.rawValue.toString(),
-                                );
-                          },
-                        )).expiratioDate!.difference(DateTime.now()).inDays >=
-                        0) {
+                if (checkIfDatabaseContainUserId(
+                          qrSeleccionado.rawValue.toString(),
+                        ) &&
+                        ref.read(currentUsualCustomerSelectedProvider) != null
+                    ? ref
+                            .read(currentUsualCustomerSelectedProvider)!
+                            .id!
+                            .toString() !=
+                        qrSeleccionado.rawValue.toString()
+                    : true) {
                   ref
                       .read(currentUsualCustomerSelectedProvider.notifier)
                       .state = ref.watch(usualCustomerListProvider).firstWhere(
                     (element) {
-                      return element.id ==
-                          int.parse(
+                      return element.id! ==
+                          int.tryParse(
                             qrSeleccionado.rawValue.toString(),
                           );
                     },
@@ -82,11 +78,27 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
                   await audioplayer.setAsset("assets/sounds/successfull.mp3");
                   await audioplayer.play();
                   await Future.delayed(const Duration(seconds: 1));
+                } else if (ref
+                        .read(currentUsualCustomerSelectedProvider)!
+                        .id!
+                        .toString() ==
+                    qrSeleccionado.rawValue.toString()) {
+                  //not do nothing if currentUsualCustomerSelected == scannedUser
                 } else {
                   await audioplayer.setAsset("assets/sounds/sound_error.mp3");
                   await audioplayer.play();
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text("Error!usuario desconocido")));
+                  if (!_isShowingErrorSnackBar) {
+                    _isShowingErrorSnackBar = true;
+                    final timeOfShowSnackBar = Duration(seconds: 1);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        duration: timeOfShowSnackBar,
+                        content: Text("Error!usuario desconocido")));
+
+                    Future.delayed(
+                      Duration(seconds: 3),
+                      () => _isShowingErrorSnackBar = false,
+                    );
+                  }
                 }
                 qrSelected = false;
               }
@@ -144,35 +156,17 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
       ),
     ));
   }
+
+  bool checkIfDatabaseContainUserId(String userID) {
+    print(ref.watch(usualCustomerListProvider).map(
+      (e) {
+        return e.id;
+      },
+    ).contains(int.tryParse(userID)));
+    return ref.watch(usualCustomerListProvider).map(
+      (e) {
+        return e.id;
+      },
+    ).contains(int.tryParse(userID));
+  }
 }
-
-// class ScannerCameraFullScreen extends StatefulWidget {
-//   const ScannerCameraFullScreen({super.key});
-
-//   @override
-//   State<ScannerCameraFullScreen> createState() =>
-//       _ScannerCameraFullScreenState();
-// }
-
-// class _ScannerCameraFullScreenState extends State<ScannerCameraFullScreen> {
-//   final MobileScannerController _controller = MobileScannerController();
-//   @override
-//   void initState() {
-//     super.initState();
-//     _controller.start();
-//   }
-
-//   @override
-//   void dispose() async {
-//     super.dispose();
-//     _controller.dispose();
-//     Future.delayed(const Duration(seconds: 3));
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MobileScanner(
-//       controller: _controller,
-//     );
-//   }
-// }

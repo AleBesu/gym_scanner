@@ -39,7 +39,7 @@ class UserInfoWidget extends ConsumerWidget {
               )
             : FutureBuilder(
                 key: _loadUserKey,
-                future: Future.delayed(const Duration(seconds: 1)),
+                future: Future.delayed(const Duration(milliseconds: 500)),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
@@ -107,7 +107,9 @@ class UserInfoWidget extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      UserStatusWidget._UserStatusWidget()
+                      UserStatusWidget(
+                        availableStatus: entity.availablesDays >= 1,
+                      )
                     ],
                   );
                 }),
@@ -118,7 +120,7 @@ class UserInfoWidget extends ConsumerWidget {
 
 class UserStatusWidget extends StatefulWidget {
   bool availableStatus;
-  UserStatusWidget._UserStatusWidget({super.key, this.availableStatus = true});
+  UserStatusWidget({super.key, this.availableStatus = true});
 
   @override
   State<UserStatusWidget> createState() => _UserStatusWidgetState();
