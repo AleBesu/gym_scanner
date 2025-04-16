@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/subscreens/finance_subscreen/subscreen_finance.dart';
 import 'dart:ui' as ui;
 import 'package:gym_scanner/UI/subscreens/register_subscreen/sub_screen_registers_(scanner).dart';
+import 'package:gym_scanner/UI/subscreens/settings_sub_screen/settings_sub_screen.dart';
 
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
@@ -12,28 +13,37 @@ class MainScreen extends ConsumerStatefulWidget {
 }
 
 class _MainScreenState extends ConsumerState<MainScreen> {
-  
   int currentIndex = 0;
   String texto = "valor vacio";
 
-  List<Widget> bodyList = [const SubScreenRegisters(), const SubScreenFinance()];
+  List<Widget> bodyList = [
+    const SubScreenRegisters(),
+    const SubScreenFinance(),
+    const SettingsSubScreen()
+  ];
   List<AppBar> appBarList = [
     AppBar(),
-    AppBar(),
     AppBar(
-      actions: [InkWell(
-         onTap: () {
-           
-         },
-        
-        child: const Icon(Icons.dark_mode))],
+      title: Text(
+        "Registros",
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+    ),
+    AppBar(
+      title: Text(
+        "Ajustes",
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      actions: [
+        Padding(
+          padding: EdgeInsets.all(20),
+          child: InkWell(onTap: () {}, child: const Icon(Icons.dark_mode)),
+        )
+      ],
     )
   ];
   @override
   Widget build(BuildContext context) {
-       
-
-
     return Scaffold(
       appBar: appBarList[currentIndex],
       body: currentIndex <= bodyList.length - 1

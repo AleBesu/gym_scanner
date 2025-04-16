@@ -2,7 +2,10 @@ import 'dart:convert';
 
 import 'package:gym_scanner/domain/casual_user.dart';
 import 'package:gym_scanner/domain/customer_entity.dart';
+import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+
+String localDatabaseName = "localdatabase.db";
 
 class CustomersDatabase {
   static CustomersDatabase instance = CustomersDatabase._private();
@@ -22,7 +25,7 @@ class CustomersDatabase {
 
   Future<Database> getNewDataBase() async {
     return openDatabase(
-      "${await getDatabasesPath()}localdatase.db",
+      join(await getDatabasesPath(), localDatabaseName),
       version: 1,
       onCreate: (db, version) {
         db.execute(
@@ -63,6 +66,15 @@ lastDateRegitred TEXT
 ''');
       },
     );
+  }
+
+  Future<void> close() async {
+    final db = await database;
+
+    if (db != null) {
+      await db.close();
+      _database = null;
+    }
   }
 
   Future<DateTime> get startTimeDate async {
