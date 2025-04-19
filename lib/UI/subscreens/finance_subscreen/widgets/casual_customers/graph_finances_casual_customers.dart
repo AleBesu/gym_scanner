@@ -5,21 +5,7 @@ import 'package:gym_scanner/UI/Providers/Statitics/casual_user_payment_statitics
 import 'package:gym_scanner/UI/Providers/year_selected_provider.dart';
 import 'package:gym_scanner/UI/subscreens/finance_subscreen/widgets/casual_customers/configs_graphs.dart';
 import 'package:gym_scanner/core/Date/time_inverval.dart';
-
-List<int> _moneyQuantityList = [
-  0,
-  100,
-  200,
-  300,
-  400,
-  500,
-  600,
-  700,
-  800,
-  900,
-  1000,
-  1100
-];
+import 'package:gym_scanner/core/coordinate2d.dart';
 
 class GraphFinancesCasualCustomers extends ConsumerStatefulWidget {
   const GraphFinancesCasualCustomers({super.key});
@@ -39,6 +25,9 @@ class _GraphFinancesState extends ConsumerState<GraphFinancesCasualCustomers> {
   int currectTimeInverval = 0;
   // int yearSelectedIndex = 0;
   DateTime startDateTime = DateTime(1);
+  Future<List<FlSpot>> casualUserStatiticsInfo = Future.sync(
+    () => [],
+  );
 
   @override
   void initState() {
@@ -51,17 +40,41 @@ class _GraphFinancesState extends ConsumerState<GraphFinancesCasualCustomers> {
   }
 
   Future<void> loadInitialData() async {
+    //if lenght is one then the year selected will zero
     if (ref.read(casualUserPaymentStatiticsProvider).length > 1) {
       ref.read(yearSelectedIndexProvider.notifier).state =
           ref.read(casualUserPaymentStatiticsProvider).length - 1;
     }
-
-    await ref.read(casualUserPaymentStatiticsProvider.notifier).loadData();
-
-    // yearSelectedIndex = ref.read(casualUserPaymentStatiticsProvider).length - 1;
-
+    changeYearSelected();
     startDateTime =
         await ref.read(casualUserPaymentStatiticsProvider.notifier).startDate;
+
+    setState(() {});
+  }
+
+  Future<void> _selectYear({int yearToSelectIndex = 0}) async {
+    if (yearToSelectIndex >
+            ref.read(casualUserPaymentStatiticsProvider).length - 1 ||
+        yearToSelectIndex < 0) {
+      throw ("Year selected cannot be greater than casualUserPaymentStatiticsProvider.length or less than zero");
+    }
+
+    ref.read(yearSelectedIndexProvider.notifier).state = yearToSelectIndex;
+
+    changeYearSelected();
+  }
+
+  Future<void> changeYearSelected() async {
+    casualUserStatiticsInfo = ref
+        .read(casualUserPaymentStatiticsProvider.notifier)
+        .getRegistersCoordenates(ref.watch(yearSelectedIndexProvider))
+        .then(
+          (value) => value
+              .map(
+                (e) => FlSpot(e.x, e.y),
+              )
+              .toList(),
+        );
 
     setState(() {});
   }
@@ -71,6 +84,10 @@ class _GraphFinancesState extends ConsumerState<GraphFinancesCasualCustomers> {
     Size size = MediaQuery.of(context).size;
     return Column(
       children: [
+        const Text(
+          "Clientes casuales",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         Align(
           alignment: Alignment.bottomLeft,
           child: Row(
@@ -109,10 +126,7 @@ class _GraphFinancesState extends ConsumerState<GraphFinancesCasualCustomers> {
                         },
                       ),
                       onChanged: (value) {
-                        setState(() {
-                          ref.read(yearSelectedIndexProvider.notifier).state =
-                              value!;
-                        });
+                        _selectYear(yearToSelectIndex: value ?? 0);
                       },
                     ),
             ],
@@ -120,22 +134,13 @@ class _GraphFinancesState extends ConsumerState<GraphFinancesCasualCustomers> {
         ),
         Expanded(
           child: FutureBuilder(
-              future: ref
-                  .read(casualUserPaymentStatiticsProvider.notifier)
-                  .getRegistersCoordenates(ref.watch(yearSelectedIndexProvider))
-                  .then(
-                    (value) => value
-                        .map(
-                          (e) => FlSpot(e.x, e.y),
-                        )
-                        .toList(),
-                  ),
+              future: casualUserStatiticsInfo,
               builder: (context, statitics) {
                 if (statitics.hasError) {
                   return const Text("Error al cargar datos");
                 }
                 if (statitics.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
+                  return const Center(child: CircularProgressIndicator());
                 }
                 return FutureBuilder(
                     future: ConfigsGraphs.getConfig(context, ref,

@@ -32,21 +32,9 @@ Future<void> importDatabase(BuildContext context, String databaseName) async {
     final pickedDatabaseFile = File(result.files.first.path!);
 
     //check if bytes of file is not null
-    if (pickedDatabaseFile != null) {
-      CustomersDatabase.instance.close();
+    CustomersDatabase.instance.close();
 
-      await File(join(await getDatabasesPath(), databaseName))
-          .writeAsBytes(awai pickedDatabaseFile.readAsBytes());
-    } else {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-            "Base de datos inválida",
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.red,
-        ));
-      }
-    }
+    await File(join(await getDatabasesPath(), databaseName))
+        .writeAsBytes(await pickedDatabaseFile.readAsBytes());
   }
 }

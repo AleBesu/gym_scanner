@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/subscreens/finance_subscreen/widgets/casual_customers/graph_finances_casual_customers.dart';
 import 'package:gym_scanner/UI/subscreens/finance_subscreen/widgets/usual_customers/graph_finances_usual_customers.dart';
 
@@ -22,10 +23,33 @@ class SubScreenFinance extends StatelessWidget {
           SizedBox(
             width: size.width * 0.9,
             height: size.height * 0.38,
-            child: GraphFinancesUsualCustomers(),
+            child: const GraphFinancesUsualCustomers(),
           )
         ],
       ),
+    );
+  }
+}
+
+class financesSubscreenAppbar extends ConsumerStatefulWidget
+    implements PreferredSizeWidget {
+  const financesSubscreenAppbar({super.key});
+
+  @override
+  ConsumerState<financesSubscreenAppbar> createState() =>
+      _financesSubscreenAppbarState();
+
+  @override
+  // TODO: implement preferredSize
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
+class _financesSubscreenAppbarState
+    extends ConsumerState<financesSubscreenAppbar> {
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      title: Text('Estadísticas'),
     );
   }
 }

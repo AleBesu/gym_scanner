@@ -5,15 +5,16 @@ import 'package:gym_scanner/domain/customer_entity.dart';
 
 import '../../../../Providers/usual_customers_list_provider.dart';
 
-Future<void> showPaymentForm(
-  BuildContext context,
-  WidgetRef ref, {
-  required Function(int value) onValue,
-  bool monthData = true,
-}) async {
+Future<void> showPaymentForm(BuildContext context, WidgetRef ref,
+    {required String timeSelectedText,
+    required String title,
+    required Function(int value) onValue,
+    int timeToAddMultiply = 1
+    // bool monthData = true,
+    }) async {
   TextEditingController timeController = TextEditingController(text: "1");
   int timeLastValue = 1;
-  String? timeTypeSelected = monthData ? "Meses" : "Dias";
+  // String? timeTypeSelected = monthData ? "Meses" : "Dias";
 
   Size size = MediaQuery.of(context).size;
   showDialog(
@@ -25,7 +26,7 @@ Future<void> showPaymentForm(
 
             return AlertDialog(
               insetPadding: EdgeInsets.zero,
-              title: const Text("Registrar tiempo"),
+              title: Text(title),
               content: Row(
                 children: [
                   IntrinsicWidth(
@@ -58,41 +59,44 @@ Future<void> showPaymentForm(
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: !monthData
-                        ? Text("Días")
-                        : DropdownButton(
-                            value: timeTypeSelected,
-                            items: [
-                              DropdownMenuItem(
-                                value: "Meses",
-                                child: Text("Mes${timeValue == 1 ? "" : "es"}"),
-                              ),
-                              DropdownMenuItem(
-                                value: "Dias",
-                                child: Text("Día${timeValue == 1 ? "" : "s"}"),
-                              ),
-                            ],
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() {
-                                  timeTypeSelected = value;
-                                });
-                              }
-                            },
-                          ),
-                  ),
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(timeSelectedText)
+                      //  /!monthData
+                      //     ? Text("Días")
+                      //     : DropdownButton(
+                      //         value: timeTypeSelected,
+                      //         items: [
+                      //           DropdownMenuItem(
+                      //             value: "Meses",
+                      //             child: Text("Mes${timeValue == 1 ? "" : "es"}"),
+                      //           ),
+                      //           DropdownMenuItem(
+                      //             value: "Dias",
+                      //             child: Text("Día${timeValue == 1 ? "" : "s"}"),
+                      //           ),
+                      //         ],
+                      //         onChanged: (value) {
+                      //           if (value != null) {
+                      //             setState(() {
+                      //               timeTypeSelected = value;
+                      //             });
+                      //           }
+                      //         },
+                      //       ),
+                      ),
                   FilledButton(
                     onPressed: () {
-                      onValue(timeTypeSelected == "Dias"
-                          ? timeValue
-                          : timeValue * 30);
+                      // onValue(timeTypeSelected == "Dias"
+                      //     ? timeValue
+                      //     : timeValue * 30);
 
                       // ref.read(customerListProvider.notifier).addPayment(
                       //     entity,
                       //     timeTypeSelected == "Dias"
                       // ? timeValue
                       //         : timeValue * 30);
+                      onValue(timeValue * timeToAddMultiply);
+
                       Navigator.pop(context);
                     },
                     style: const ButtonStyle(

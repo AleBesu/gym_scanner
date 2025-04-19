@@ -48,8 +48,8 @@ abstract class ConfigsGraphs {
   }) {
     Size size = MediaQuery.of(context).size;
 
-    double intervalY =
-        _calculateIntervalY(spotsList, firstInterval: 10, secontInterval: 25);
+    double intervalY = _calculateIntervalY(spotsList,
+        firstInterval: 2, secontInterval: 10, thirdInvertal: 25);
     int lastMondayIndex = DateTime.now()
         .subtract(Duration(days: DateTime.now().weekday - DateTime.monday))
         .difference(DateTime(DateTime.now().year))
@@ -62,6 +62,12 @@ abstract class ConfigsGraphs {
 
 
 */
+
+    print(spotsList
+        .where(
+          (spot) => spot.x >= lastMondayIndex && spot.x <= lastDayWeek,
+        )
+        .toList());
     return LineChartData(
         borderData: FlBorderData(border: Border.all(color: Colors.white)),
         lineTouchData: LineTouchData(touchTooltipData: LineTouchTooltipData(
@@ -76,7 +82,6 @@ abstract class ConfigsGraphs {
         )),
         lineBarsData: [
           LineChartBarData(
-            isCurved: true,
             belowBarData: BarAreaData(
                 show: true,
                 gradient: LinearGradient(
@@ -115,14 +120,15 @@ abstract class ConfigsGraphs {
           )
         ],
         minY: 0,
-        maxY: _roundIntervalY(spotsList, intervalY),
+        // maxY: _roundIntervalY(spotsList, intervalY),
         minX: lastMondayIndex.toDouble(),
         maxX: lastDayWeek.toDouble(),
         gridData: FlGridData(
           drawVerticalLine: false,
           horizontalInterval: intervalY / 2,
           getDrawingHorizontalLine: (value) {
-            return const FlLine(color: Colors.white10, strokeWidth: 2);
+            return const FlLine(
+                color: Colors.white10, strokeWidth: 2, dashArray: [5, 2]);
           },
         ),
         titlesData: FlTitlesData(
@@ -179,14 +185,13 @@ abstract class ConfigsGraphs {
   }) async {
     Size size = MediaQuery.of(context).size;
 
-    double intervalY =
-        _calculateIntervalY(spotsList, firstInterval: 10, secontInterval: 25);
+    double intervalY = _calculateIntervalY(spotsList,
+        firstInterval: 2, secontInterval: 10, thirdInvertal: 25);
 
     double minX = DateTime(DateTime.now().year, DateTime.now().month)
-            .difference(DateTime(DateTime.now().year))
-            .inDays
-            .toDouble() +
-        1;
+        .difference(DateTime(DateTime.now().year))
+        .inDays
+        .toDouble();
     double maxX = DateTime(DateTime.now().year, DateTime.now().month)
             .difference(DateTime(DateTime.now().year))
             .inDays
@@ -194,13 +199,14 @@ abstract class ConfigsGraphs {
         DateTime(DateTime.now().year, DateTime.now().month + 1)
             .difference(DateTime(DateTime.now().year, DateTime.now().month))
             .inDays
-            .toDouble();
+            .toDouble() -
+        1;
 
     print(spotsList
-        .reduce(
-          (a, b) => a.y > a.y ? a : b,
+        .where(
+          (element) => element.x >= minX && element.x <= maxX,
         )
-        .y);
+        .toList());
 
     return LineChartData(
         borderData: FlBorderData(border: Border.all(color: Colors.white)),
@@ -216,7 +222,6 @@ abstract class ConfigsGraphs {
         )),
         lineBarsData: [
           LineChartBarData(
-              isCurved: true,
               belowBarData: BarAreaData(
                   show: true,
                   gradient: LinearGradient(
@@ -264,14 +269,15 @@ abstract class ConfigsGraphs {
 
   el valor del intervalo mas proximo es 100
         */
-        maxY: _roundIntervalY(spotsList, intervalY),
+        // maxY: _roundIntervalY(spotsList, intervalY),
         minX: minX,
         maxX: maxX,
         gridData: FlGridData(
           drawVerticalLine: false,
           horizontalInterval: intervalY,
           getDrawingHorizontalLine: (value) {
-            return const FlLine(color: Colors.white10, strokeWidth: 2);
+            return const FlLine(
+                color: Colors.white10, strokeWidth: 2, dashArray: [5, 2]);
           },
         ),
         titlesData: FlTitlesData(
@@ -281,7 +287,7 @@ abstract class ConfigsGraphs {
                       return Text("${(value - minX + 1).toInt()}");
                     },
                     minIncluded: false,
-                    interval: 6,
+                    interval: 2,
                     showTitles: true,
                     reservedSize: size.height * 0.07)),
             leftTitles: AxisTitles(
@@ -301,8 +307,8 @@ abstract class ConfigsGraphs {
     if (spotsList.length >= 2) {
       spotsList = _calculateMonthlyAverage(spotsList, 15);
     }
-    double intervalY =
-        _calculateIntervalY(spotsList, firstInterval: 10, secontInterval: 25);
+    double intervalY = _calculateIntervalY(spotsList,
+        firstInterval: 2, secontInterval: 10, thirdInvertal: 25);
     return LineChartData(
         borderData: FlBorderData(border: Border.all(color: Colors.white)),
         lineTouchData: LineTouchData(touchTooltipData: LineTouchTooltipData(
@@ -317,7 +323,6 @@ abstract class ConfigsGraphs {
         )),
         lineBarsData: [
           LineChartBarData(
-              isCurved: true,
               belowBarData: BarAreaData(
                   show: true,
                   gradient: LinearGradient(
@@ -355,7 +360,7 @@ abstract class ConfigsGraphs {
               spots: spotsList)
         ],
         minY: 0,
-        maxY: _roundIntervalY(spotsList, intervalY),
+        // maxY: _roundIntervalY(spotsList, intervalY),
         minX: 0,
         maxX: 365,
         gridData: FlGridData(
@@ -369,7 +374,8 @@ abstract class ConfigsGraphs {
               ? 1
               : 5,
           getDrawingHorizontalLine: (value) {
-            return const FlLine(color: Colors.white10, strokeWidth: 2);
+            return const FlLine(
+                color: Colors.white10, strokeWidth: 2, dashArray: [5, 2]);
           },
         ),
         titlesData: FlTitlesData(
@@ -451,15 +457,21 @@ abstract class ConfigsGraphs {
   }
 
   static double _calculateIntervalY(List<FlSpot> spotsList,
-      {required int firstInterval, required int secontInterval}) {
-    return spotsList
-                .reduce(
-                  (a, b) => a.y > b.y ? a : b,
-                )
-                .y <
-            150
-        ? firstInterval.toDouble()
-        : secontInterval.toDouble();
+      {required int firstInterval,
+      required int secontInterval,
+      required int thirdInvertal}) {
+    final largestValueY = spotsList
+        .reduce(
+          (a, b) => a.y > b.y ? a : b,
+        )
+        .y;
+
+    return (largestValueY <= 20
+            ? firstInterval
+            : largestValueY > 20 && largestValueY < 100
+                ? secontInterval
+                : thirdInvertal)
+        .toDouble();
   }
 
   static double _roundIntervalY(List<FlSpot> spotsList, double intervalY) {

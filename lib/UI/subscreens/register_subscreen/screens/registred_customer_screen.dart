@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/Providers/usual_customers_list_provider.dart';
@@ -244,9 +247,17 @@ class RegisterCustomerWidget extends StatelessWidget {
                       Icons.share,
                     ),
                   ),
-                  const Padding(
-                    padding: const EdgeInsets.only(left: 8),
+                  Padding(
+                    padding: EdgeInsets.only(left: 8),
                     child: InkWell(
+                      onTap: () async {
+                        FilePicker.platform.saveFile(
+                            fileName: "${entity.name} qr_code ",
+                            type: FileType.image,
+                            bytes: await (entity.qrCodeImage as FileImage)
+                                .file
+                                .readAsBytes());
+                      },
                       child: Icon(
                         Icons.download,
                       ),

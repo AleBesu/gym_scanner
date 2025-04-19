@@ -21,26 +21,15 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     const SubScreenFinance(),
     const SettingsSubScreen()
   ];
-  List<AppBar> appBarList = [
-    AppBar(),
+  List<PreferredSizeWidget> appBarList = [
     AppBar(
-      title: Text(
+      title: const Text(
         "Registros",
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
     ),
-    AppBar(
-      title: Text(
-        "Ajustes",
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      actions: [
-        Padding(
-          padding: EdgeInsets.all(20),
-          child: InkWell(onTap: () {}, child: const Icon(Icons.dark_mode)),
-        )
-      ],
-    )
+    const financesSubscreenAppbar(),
+    const settingsSubScreenAppbar()
   ];
   @override
   Widget build(BuildContext context) {

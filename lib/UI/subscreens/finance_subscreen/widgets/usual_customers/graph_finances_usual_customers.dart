@@ -49,7 +49,7 @@ class _GraphFinancesUsualCustomersState
       if (allYearsStatiticPro != null) {
         _futureYearStatistics = ref
             .read(usualUserPaymentStatiticsProvider.notifier)
-            .getAYearStatitics(yearSelected: allYearsStatiticPro!.length - 1);
+            .getAYearStatitics(yearSelected: yearSelected);
       }
     });
   }
@@ -61,6 +61,9 @@ class _GraphFinancesUsualCustomersState
       //     .getAYearStatitics(yearSelected: yearToSelect);
 
       yearSelected = yearToSelect;
+      _futureYearStatistics = ref
+          .read(usualUserPaymentStatiticsProvider.notifier)
+          .getAYearStatitics(yearSelected: yearSelected);
     });
   }
 
@@ -79,19 +82,28 @@ class _GraphFinancesUsualCustomersState
           }
 
           final usualUserPaymentStatitic = snapshot.data!;
+          double intervalY = _calculateIntervalY(usualUserPaymentStatitic,
+              firstInterval: 2, secontInterval: 10, thirdInvertal: 25);
 
           return BarChart(BarChartData(
+              barTouchData: BarTouchData(touchTooltipData: BarTouchTooltipData(
+                getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                  return BarTooltipItem(rod.toY.toInt().toString(),
+                      TextStyle(color: Colors.green));
+                },
+              )),
               gridData: FlGridData(
                 drawVerticalLine: false,
-                horizontalInterval: 25,
+                horizontalInterval: intervalY,
                 getDrawingHorizontalLine: (value) {
-                  return const FlLine(color: Colors.white10, strokeWidth: 2);
+                  return const FlLine(
+                      color: Colors.white10, strokeWidth: 2, dashArray: [5, 2]);
                 },
               ),
               borderData: FlBorderData(
                   border: Border.all(
                       color: Colors.white, width: size.width * 0.001)),
-              maxY: 200,
+              // maxY: _roundIntervalY(usualUserPaymentStatitic, intervalY),
               barGroups: [
                 ...List.generate(usualUserPaymentStatitic.length, (index) {
                   return BarChartGroupData(x: index, barRods: [
@@ -106,7 +118,9 @@ class _GraphFinancesUsualCustomersState
               titlesData: FlTitlesData(
                   leftTitles: AxisTitles(
                       sideTitles: SideTitles(
-                          showTitles: true, reservedSize: size.width * 0.1)),
+                          interval: intervalY,
+                          showTitles: true,
+                          reservedSize: size.width * 0.1)),
                   rightTitles: const AxisTitles(),
                   topTitles: AxisTitles(
                     axisNameSize: size.height * 0.035,
@@ -244,4 +258,35 @@ class _MonthTitle extends StatelessWidget {
       ],
     );
   }
+}
+
+double _calculateIntervalY(List<List<UsualCustomerEntity>> year,
+    {required int firstInterval,
+    required int secontInterval,
+    required int thirdInvertal}) {
+  final largestValueY = year
+      .reduce(
+        (a, b) => a.length > b.length ? a : b,
+      )
+      .length;
+
+  return (largestValueY <= 20
+          ? firstInterval
+          : largestValueY > 20 && largestValueY < 100
+              ? secontInterval
+              : thirdInvertal)
+      .toDouble();
+}
+
+double _roundIntervalY(List<List<UsualCustomerEntity>> year, double intervalY) {
+  return ((year
+                      .reduce(
+                        (a, b) => a.length > b.length ? a : b,
+                      )
+                      .length
+                      .toDouble() /
+                  intervalY)
+              .toInt() +
+          1) *
+      intervalY;
 }

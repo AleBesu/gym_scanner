@@ -28,6 +28,8 @@ class _CustomersProvider extends StateNotifier<List<UsualCustomerEntity>> {
         .map(
           (e) => UsualCustomerEntity.fromMap(e),
         )
+        .toList()
+        .reversed
         .toList();
   }
 
@@ -41,9 +43,17 @@ class _CustomersProvider extends StateNotifier<List<UsualCustomerEntity>> {
     await loadInfoFromDatabase();
 
     ///saved in statitics
-    ref
-        .read(usualUserPaymentStatiticsProvider.notifier)
-        .addRegister(addedCustomer);
+    ref.read(usualUserPaymentStatiticsProvider.notifier).addRegister(
+        addedCustomer,
+        (addedCustomer.expiratioDate!
+                    .difference(addedCustomer.lastPayment!)
+                    .inDays +
+                1) ~/
+            30);
+
+    print(
+        ''' esteeeee         ${(addedCustomer.expiratioDate!.difference(addedCustomer.lastPayment!).inDays + 1)}
+ ''');
     //////////////////////////
   }
 
@@ -70,7 +80,8 @@ class _CustomersProvider extends StateNotifier<List<UsualCustomerEntity>> {
   Future<void> updateLastAccess(UsualCustomerEntity entity) async {
     await loadInfoFromDatabase();
 
-    localDataBase.updateUsualCustomerLastAccess(entity,
+    await localDataBase.updateUsualCustomerLastAccess(entity,
         lastAccessDateTime: DateTime.now());
+    // await loadInfoFromDatabase();
   }
 }

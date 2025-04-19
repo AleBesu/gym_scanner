@@ -58,6 +58,9 @@ class UserRegisterPaymentBoton extends ConsumerWidget {
               onPressed: () {
                 showPaymentForm(
                   context,
+                  title: "Registrar tiempo",
+                  timeSelectedText: 'Meses',
+                  timeToAddMultiply: 30,
                   ref,
                   onValue: (value) {
                     ref

@@ -10,7 +10,8 @@ import 'package:gym_scanner/domain/customer_entity.dart';
 class CustomerRegisterScreen extends ConsumerWidget {
   CustomerRegisterScreen({super.key});
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController daysController = TextEditingController();
+  final TextEditingController timeToAddTextController =
+      TextEditingController(text: 1.toString());
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   @override
@@ -29,11 +30,11 @@ class CustomerRegisterScreen extends ConsumerWidget {
                       .addCustomer(UsualCustomerEntity(
                         creationDate: DateTime.now(),
                         lastPayment: DateTime.now(),
-                        lastAccessDateTime: DateTime.now(),
                         userImage: imageSelectedPro,
                         nameController.text,
                         expiratioDate: DateTime.now().add(Duration(
-                            days: int.tryParse(daysController.text) ?? 0)),
+                            days: int.tryParse(timeToAddTextController.text)! *
+                                30)),
                       ));
 
                   Navigator.pop(context);
@@ -91,7 +92,7 @@ class CustomerRegisterScreen extends ConsumerWidget {
                           Padding(
                             padding:
                                 EdgeInsets.only(bottom: size.height * 0.01),
-                            child: const Text("Días"),
+                            child: Text('Meses'),
                           ),
                           TextFormField(
                             validator: (value) {
@@ -103,7 +104,7 @@ class CustomerRegisterScreen extends ConsumerWidget {
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly
                             ],
-                            controller: daysController,
+                            controller: timeToAddTextController,
                             decoration: const InputDecoration(
                               focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(color: Colors.white)),

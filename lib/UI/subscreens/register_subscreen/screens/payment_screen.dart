@@ -83,12 +83,14 @@ class UserCasualRegisterBotton extends ConsumerWidget {
       onTap: () async {
         await showPaymentForm(
           context,
+          timeSelectedText: 'Clientes',
+          title: "Registrar cliente casual",
           ref,
-          monthData: false,
+          // monthData: false,
           onValue: (value) async {
-            ref
-                .read(casualUserPaymentStatiticsProvider.notifier)
-                .addRegister(CasualCustomer(value), dayToAddIndex: 0);
+            ref.read(casualUserPaymentStatiticsProvider.notifier).addRegister(
+                CasualCustomer(value),
+                quantityCustomersToAdd: value);
 
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               margin: EdgeInsets.all(size.height * 0.02),

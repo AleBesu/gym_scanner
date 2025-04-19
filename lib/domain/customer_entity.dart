@@ -19,10 +19,10 @@ class UsualCustomerEntity {
       this.lastPayment,
       this.creationDate,
       this.expiratioDate,
-      this.lastAccessDateTime}) {}
-
+      this.lastAccessDateTime});
   int get availablesDays {
-    return expiratioDate!.difference(DateTime.now()).inDays + 1;
+    return (expiratioDate!.difference(DateTime.now()).inDays + 1)
+        .clamp(0, (1 << 63) - 1);
   }
 
   factory UsualCustomerEntity.fromMap(Map<String, dynamic> map) {
@@ -34,7 +34,9 @@ class UsualCustomerEntity {
       creationDate: DateTime.parse(map["creationDate"]),
       lastPayment: DateTime.parse(map["lastPayment"]),
       expiratioDate: DateTime.parse(map["expiratioDate"]),
-      lastAccessDateTime: DateTime.parse(map['lastAccessDateTime']),
+      lastAccessDateTime: map['lastAccessDateTime'] != null
+          ? DateTime.parse(map['lastAccessDateTime'])
+          : null,
     );
   }
 
@@ -47,7 +49,7 @@ class UsualCustomerEntity {
       "creationDate": creationDate!.toIso8601String(),
       "lastPayment": lastPayment!.toIso8601String(),
       "expiratioDate": expiratioDate!.toIso8601String(),
-      'lastAccessDateTime': lastAccessDateTime!.toIso8601String(),
+      'lastAccessDateTime': lastAccessDateTime?.toIso8601String(),
     };
   }
 

@@ -111,7 +111,7 @@ class UserInfoWidget extends ConsumerWidget {
                       ),
                       UserStatusWidget(
                         availableStatus: entity.availablesDays >= 1,
-                        lastAccess: entity.lastAccessDateTime!,
+                        lastAccess: entity.lastAccessDateTime,
                       )
                     ],
                   );
@@ -123,7 +123,7 @@ class UserInfoWidget extends ConsumerWidget {
 
 class UserStatusWidget extends StatefulWidget {
   bool availableStatus;
-  final DateTime lastAccess;
+  final DateTime? lastAccess;
   UserStatusWidget(
       {super.key, this.availableStatus = true, required this.lastAccess});
 
@@ -143,13 +143,15 @@ class _UserStatusWidgetState extends State<UserStatusWidget> {
 
   @override
   Widget build(BuildContext context) {
+    //DateTime(1) when last access is for give access when has never entered
+
     Size size = MediaQuery.of(context).size;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: !availableStatus
             ? Colors.red
-            : checkIfLastAccessValueIsToday(widget.lastAccess)
+            : checkIfLastAccessValueIsToday(widget.lastAccess ?? DateTime(1))
                 ? Colors.amber
                 : Colors.green,
       ),
@@ -162,13 +164,15 @@ class _UserStatusWidgetState extends State<UserStatusWidget> {
             children: [
               !availableStatus
                   ? const Icon(Icons.error)
-                  : checkIfLastAccessValueIsToday(widget.lastAccess)
+                  : checkIfLastAccessValueIsToday(
+                          widget.lastAccess ?? DateTime(1))
                       ? Icon(Icons.warning)
                       : Icon(Icons.verified),
               Text(
                 !availableStatus
                     ? "Acceso Denegado"
-                    : checkIfLastAccessValueIsToday(widget.lastAccess)
+                    : checkIfLastAccessValueIsToday(
+                            widget.lastAccess ?? DateTime(1))
                         ? 'Alerta'
                         : "Acceso Permitido",
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -179,9 +183,11 @@ class _UserStatusWidgetState extends State<UserStatusWidget> {
             padding: EdgeInsets.only(left: size.width * 0.06),
             child: InfoText(
                 info: 'Última entrada',
-                value: checkIfLastAccessValueIsToday(widget.lastAccess)
-                    ? "Hoy a la${widget.lastAccess.hour == 1 ? '' : 's'}${dateTimeFormatOnlyHourAndMinutes(widget.lastAccess)}"
-                    : dateTimeFormatHourDayMonth(widget.lastAccess)),
+                value: widget.lastAccess == null
+                    ? "Nunca ha entrado"
+                    : checkIfLastAccessValueIsToday(widget.lastAccess!)
+                        ? "Hoy a la${widget.lastAccess!.hour == 1 ? '' : 's'}${dateTimeFormatOnlyHourAndMinutes(widget.lastAccess!)}"
+                        : dateTimeFormatHourDayMonth(widget.lastAccess!)),
           )
         ],
       ),

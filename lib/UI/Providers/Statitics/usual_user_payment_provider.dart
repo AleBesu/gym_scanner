@@ -14,9 +14,17 @@ class _UsualUserPayment
   _UsualUserPayment(super.state);
   CustomersDatabase customersDatabase = CustomersDatabase.instance;
 
-  Future<void> addRegister(UsualCustomerEntity entity) async {
-    await customersDatabase.addUsualCustomerStatitic(entity,
-        toAddMonthNumber: DateTime.now().month);
+  Future<void> addRegister(UsualCustomerEntity entity, int daysToAdd) async {
+    await customersDatabase.addUsualCustomerStatitic(
+      entity,
+      listOfnumberOfMonthsToAdd: List.generate(
+        daysToAdd,
+        (index) =>
+            DateTime.now().month +
+            index -
+            1, //-1 to format to index Format(lis index)
+      ),
+    );
   }
 
   Future<List<List<UsualCustomerEntity>>> getAYearStatitics(

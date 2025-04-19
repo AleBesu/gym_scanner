@@ -9,7 +9,7 @@ String localDatabaseName = "localdatabase.db";
 
 class CustomersDatabase {
   static CustomersDatabase instance = CustomersDatabase._private();
-  final String _table = "customers";
+  final String _usualCustomerTable = "customers";
   final String _casualsCustomersStatisticsTable = "casualsCustomersStatistics";
   final String _usualCustomerStaticsTable = 'usualCustomerStaticsTable';
   final String _datesRegistersTable = 'datesRegistersTable';
@@ -29,7 +29,7 @@ class CustomersDatabase {
       version: 1,
       onCreate: (db, version) {
         db.execute(
-          "CREATE TABLE $_table (id INTEGER NOT NULL,name TEXT,userImagePath TEXT,qrCodeImagePath TEXT ,creationDate TEXT,lastPayment TEXT,expiratioDate TEXT,lastAccessDateTime TEXT)",
+          "CREATE TABLE $_usualCustomerTable (id INTEGER NOT NULL,name TEXT,userImagePath TEXT,qrCodeImagePath TEXT ,creationDate TEXT,lastPayment TEXT,expiratioDate TEXT,lastAccessDateTime TEXT)",
         );
         //the estructore of  _casualsCustomersStatisticsTable  is A List(table or too all years) with lists(each year) of lists of casualCustomer//
         db.execute('''
@@ -68,6 +68,19 @@ lastDateRegitred TEXT
     );
   }
 
+  Future<void> deleteStatitics() async {
+    final db = await database;
+
+    await db.delete(_usualCustomerStaticsTable);
+    await db.delete(_casualsCustomersStatisticsTable);
+    await db.delete('startDateTable');
+    await db.insert(
+        'startDateTable', {'startTimeDate': DateTime.now().toIso8601String()});
+    await db.delete('datesRegistersTable');
+    await db.insert('datesRegistersTable',
+        {'lastDateRegitred': DateTime.now().toIso8601String()});
+  }
+
   Future<void> close() async {
     final db = await database;
 
@@ -98,7 +111,6 @@ lastDateRegitred TEXT
 
     return await db.query(
       "customers",
-      orderBy: "id DESC",
     );
   }
 
@@ -112,12 +124,12 @@ lastDateRegitred TEXT
     final db = await database;
 
     for (int id in elementsToDeleteID) {
-      await db.delete(_table, where: "id = ?", whereArgs: [id]);
+      await db.delete(_usualCustomerTable, where: "id = ?", whereArgs: [id]);
     }
   }
 
   Future<void> addUsualCustomerStatitic(UsualCustomerEntity usualCustomerEntity,
-      {required int toAddMonthNumber}) async {
+      {required List<int> listOfnumberOfMonthsToAdd}) async {
     await _fillMonthsWithoutRegister();
     final db = await database;
     final usualUserStatiticsTable = await db.query(_usualCustomerStaticsTable);
@@ -139,10 +151,15 @@ lastDateRegitred TEXT
         ).toList();
       },
     ).toList();
-    //for add the customer to selected Month,
-    // toAddMonthNumber -1 because the number month format in DateTime.noew start in 1 but database start in 0
-    usualUserStatiticsMaps.last[toAddMonthNumber - 1]
-        .add(usualCustomerEntity.toMap());
+
+    //to addUsualUser To listOfMonth
+    usualUserStatiticsMaps.last.asMap().forEach(
+      (index, month) {
+        if (listOfnumberOfMonthsToAdd.contains(index)) {
+          month.add(usualCustomerEntity.toMap());
+        }
+      },
+    );
 
     db.update(_usualCustomerStaticsTable,
         {'yearWithMonthsWithUsers': jsonEncode(usualUserStatiticsMaps.last)},
@@ -178,8 +195,8 @@ lastDateRegitred TEXT
       {required DateTime lastAccessDateTime}) async {
     final db = await database;
 
-    db.update(
-        _table, {'lastAccessDateTime': lastAccessDateTime.toIso8601String()},
+    await db.update(_usualCustomerTable,
+        {'lastAccessDateTime': lastAccessDateTime.toIso8601String()},
         where: 'id = ?', whereArgs: [entity.id]);
   }
 
@@ -187,14 +204,16 @@ lastDateRegitred TEXT
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-  Future<void> addCasualCustomerStatitic(CasualCustomer newCasualUser) async {
+  Future<void> addCasualCustomerStatitic(
+      CasualCustomer newCasualUser, int dayOfYearIndex) async {
     await _fillDaysWithOutRegister();
     final db = await database;
     final casualUserTable = await db.query(
       _casualsCustomersStatisticsTable,
     );
+
     final yearList = await getCasualCustomerStatitics();
-    List<CasualCustomer> lastDay = yearList.last.last;
+    List<CasualCustomer> dayOfYearToAddCustomer = yearList.last[dayOfYearIndex];
     List<List<Map<String, dynamic>>> savedDaysOfLastYear = yearList.last
         .map(
           (day) => day
@@ -205,14 +224,13 @@ lastDateRegitred TEXT
         )
         .toList();
     // lastDay.add(newCasualUser);
-    final lastDayMaps = lastDay
+    final dayOfYearToAddMaps = dayOfYearToAddCustomer
         .map(
           (e) => e.toMap(),
         )
         .toList();
 
-    // List<int> idList = await _getDaysIDList();
-    savedDaysOfLastYear.last = [...lastDayMaps, newCasualUser.toMap()];
+    savedDaysOfLastYear.last = [...dayOfYearToAddMaps, newCasualUser.toMap()];
     db.update(
         _casualsCustomersStatisticsTable,
         {
@@ -226,11 +244,11 @@ lastDateRegitred TEXT
 
   Future<List<List<List<CasualCustomer>>>> getCasualCustomerStatitics() async {
     final db = await database;
+
+    await _fillDaysWithOutRegister();
     List<Map<String, Object?>> casualUserTable = await db.query(
       _casualsCustomersStatisticsTable,
     );
-
-    await _fillDaysWithOutRegister();
 
     return casualUserTable.map(
       (year) {
@@ -287,18 +305,13 @@ lastDateRegitred TEXT
         _casualsCustomersStatisticsTable,
       );
     }
+    //////////////////////////////////////////////////////////
     List<Map<String, Object?>> datesRegistersTable =
         await db.query(_datesRegistersTable);
     final lastDateRegister =
         DateTime.parse(datesRegistersTable.last['lastDateRegitred'].toString());
     final daysWithoutRegistrer =
         DateTime.now().difference(lastDateRegister).inDays;
-
-    // if (DateTime.now().year > lastDateRegister.year) {
-    //   db.insert(_casualsCustomersStatisticsTable, {
-    //     'ListOfcasualCustomerListJSON': jsonEncode([[]])
-    //   });
-    // }
 
     if (DateTime.now().year > lastDateRegister.year) {
       // Calcular días desde inicio del año hasta hoy

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gym_scanner/UI/Providers/theme_is_dark_provider.dart';
 import 'package:gym_scanner/UI/Providers/usual_customers_list_provider.dart';
 import 'package:gym_scanner/UI/main_screen.dart';
 import 'package:gym_scanner/data/local/customers_database.dart';
@@ -28,7 +29,10 @@ class _MyAppState extends ConsumerState<MyApp> {
 
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData.dark(),
+        theme: ThemeData(
+            brightness: ref.watch(themeIsDarkProvider)
+                ? Brightness.dark
+                : Brightness.light),
         title: 'Core GYM',
         home: const MainScreen());
   }
