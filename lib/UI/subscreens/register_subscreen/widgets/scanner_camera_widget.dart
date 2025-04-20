@@ -4,7 +4,7 @@ import 'package:gym_scanner/UI/Providers/current_customer_provider.dart';
 
 import 'package:gym_scanner/UI/Providers/usual_customers_list_provider.dart';
 
-import 'package:gym_scanner/domain/customer_entity.dart';
+import 'package:gym_scanner/domain/usual_customer_entity.dart';
 
 import 'package:just_audio/just_audio.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';

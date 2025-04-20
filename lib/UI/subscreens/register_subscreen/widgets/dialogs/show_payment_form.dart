@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gym_scanner/domain/customer_entity.dart';
+import 'package:gym_scanner/domain/usual_customer_entity.dart';
 
 import '../../../../Providers/usual_customers_list_provider.dart';
 

@@ -150,8 +150,11 @@ class _GraphFinancesState extends ConsumerState<GraphFinancesCasualCustomers> {
                       return LineChart(snapshot.data ??
                           LineChartData(
                               titlesData: const FlTitlesData(
-                                  topTitles: AxisTitles(
-                                      axisNameWidget: Text('erroorrrr')))));
+                                  topTitles: const AxisTitles(
+                                      axisNameWidget:
+                                          null //!in production  shouldn't  be axisNameWidget
+
+                                      ))));
                     });
               }),
         ),

@@ -9,7 +9,7 @@ import 'package:gym_scanner/UI/subscreens/register_subscreen/widgets/seach_deleg
 import 'package:gym_scanner/UI/widgets/selecter/selectable_elements.dart';
 import 'package:gym_scanner/core/Date/date_time_format.dart';
 import 'package:gym_scanner/core/list_where_index.dart';
-import 'package:gym_scanner/domain/customer_entity.dart';
+import 'package:gym_scanner/domain/usual_customer_entity.dart';
 import 'package:share_plus/share_plus.dart';
 
 class RegistredCustomerScreen extends ConsumerWidget {

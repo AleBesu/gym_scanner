@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gym_scanner/UI/subscreens/register_subscreen/screens/registred_customer_screen.dart';
 
-import 'package:gym_scanner/domain/customer_entity.dart';
+import 'package:gym_scanner/domain/usual_customer_entity.dart';
 
 class SeachUsualCustomerDelegate extends SearchDelegate {
   final List<UsualCustomerEntity> listToSeach;

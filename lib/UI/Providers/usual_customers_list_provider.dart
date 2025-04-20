@@ -5,7 +5,7 @@ import 'package:gym_scanner/UI/Providers/Statitics/usual_user_payment_provider.d
 import 'package:gym_scanner/core/generate/generate_qr_image_file.dart';
 import 'package:gym_scanner/data/local/customers_database.dart';
 
-import 'package:gym_scanner/domain/customer_entity.dart';
+import 'package:gym_scanner/domain/usual_customer_entity.dart';
 
 final usualCustomerListProvider =
     StateNotifierProvider<_CustomersProvider, List<UsualCustomerEntity>>(
@@ -57,17 +57,21 @@ class _CustomersProvider extends StateNotifier<List<UsualCustomerEntity>> {
     //////////////////////////
   }
 
-  void addPayment(UsualCustomerEntity addedCustomer, int daysToAdd) {
-    state = state.map(
-      (customer) {
-        if (addedCustomer.id == customer.id) {
-          customer.expiratioDate =
-              customer.expiratioDate!.add(Duration(days: daysToAdd));
-        }
+  void addPayment(UsualCustomerEntity addedCustomer, int daysToAdd) async {
+    loadInfoFromDatabase();
+    localDataBase.usualCustomerregisterPayment(addedCustomer,
+        addedCustomer.expiratioDate!.add(Duration(days: daysToAdd)));
+    loadInfoFromDatabase();
+    // state = state.map(
+    //   (customer) {
+    //     if (addedCustomer.id == customer.id) {
+    //       customer.expiratioDate =
+    //           customer.expiratioDate!.add(Duration(days: daysToAdd));
+    //     }
 
-        return customer;
-      },
-    ).toList();
+    //     return customer;
+    //   },
+    // ).toList();
   }
 
   Future<void> removeForID(List<int> elementsToRemoveID) async {

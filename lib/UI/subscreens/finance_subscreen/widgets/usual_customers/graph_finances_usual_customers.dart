@@ -6,7 +6,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/Providers/Statitics/usual_user_payment_provider.dart';
-import 'package:gym_scanner/domain/customer_entity.dart';
+import 'package:gym_scanner/domain/usual_customer_entity.dart';
 
 class GraphFinancesUsualCustomers extends ConsumerStatefulWidget {
   const GraphFinancesUsualCustomers({super.key});
@@ -78,7 +78,8 @@ class _GraphFinancesUsualCustomersState
         future: _futureYearStatistics,
         builder: (context, snapshot) {
           if (snapshot.data == null) {
-            return const Text("error");
+            // return const Text("error");   //!in production this uncomment this line
+            return SizedBox();
           }
 
           final usualUserPaymentStatitic = snapshot.data!;

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:gym_scanner/domain/casual_user.dart';
-import 'package:gym_scanner/domain/customer_entity.dart';
+import 'package:gym_scanner/domain/usual_customer_entity.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -106,6 +106,9 @@ lastDateRegitred TEXT
         datesRegistersTable.last['lastDateRegitred'].toString());
   }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
   Future<List<Map<String, dynamic>>> getUsualCustomersList() async {
     final db = await database;
 
@@ -164,6 +167,15 @@ lastDateRegitred TEXT
     db.update(_usualCustomerStaticsTable,
         {'yearWithMonthsWithUsers': jsonEncode(usualUserStatiticsMaps.last)},
         where: 'id = ?', whereArgs: [usualUserStatiticsTable.last["id"]]);
+  }
+
+  Future<void> usualCustomerregisterPayment(
+      UsualCustomerEntity entity, DateTime expirationDate) async {
+    final db = await database;
+
+    db.update(_usualCustomerTable,
+        {"expiratioDate": expirationDate.toIso8601String()},
+        where: 'id = ?', whereArgs: [entity.id]);
   }
 
   Future<List<List<List<UsualCustomerEntity>>>>
@@ -267,22 +279,6 @@ lastDateRegitred TEXT
         ).toList();
       },
     ).toList();
-
-    // List<String> diaryStaticsUserList = casualUserTable
-    //     .map(
-    //       (e) => e["casualCustomerListJSON"].toString(),
-    //     )
-    //     .toList();
-
-    // return diaryStaticsUserList.map(
-    //   (dayList) {
-    //     return (jsonDecode(dayList) as List)
-    //         .map(
-    //           (casualUserJson) => CasualCustomer.fromJson(casualUserJson),
-    //         )
-    //         .toList();
-    //   },
-    // ).toList();
   }
 
   bool isFilling = false;

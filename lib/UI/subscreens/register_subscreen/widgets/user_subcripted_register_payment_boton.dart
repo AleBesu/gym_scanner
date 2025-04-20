@@ -5,7 +5,7 @@ import 'package:gym_scanner/UI/Providers/usual_customers_list_provider.dart';
 
 import 'package:gym_scanner/UI/widgets/dialogs/show_image.dart';
 import 'package:gym_scanner/UI/widgets/info_text.dart';
-import 'package:gym_scanner/domain/customer_entity.dart';
+import 'package:gym_scanner/domain/usual_customer_entity.dart';
 
 import 'dialogs/show_payment_form.dart';
 

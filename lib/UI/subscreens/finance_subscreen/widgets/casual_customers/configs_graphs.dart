@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/Providers/Statitics/casual_user_payment_statitics_provider.dart';
 import 'package:gym_scanner/UI/Providers/year_selected_provider.dart';
+import 'package:gym_scanner/core/Date/get/month_of_year_list.dart';
 
 import 'package:gym_scanner/core/Date/time_inverval.dart';
 
@@ -13,7 +14,7 @@ abstract class ConfigsGraphs {
     DateTime _startDate =
         await ref.read(casualUserPaymentStatiticsProvider.notifier).startDate;
     int daysSinceInitYear = ref.watch(yearSelectedIndexProvider) == 0
-        ? _startDate.difference(DateTime(_startDate.year)).inDays
+        ? _startDate.difference(DateTime.utc(_startDate.year)).inDays
         : 0;
 
     coordenatesValuesList = coordenatesValuesList.map(
@@ -30,8 +31,13 @@ abstract class ConfigsGraphs {
         );
 
       case TimeInverval.month:
-        return await _getMonthConfig(context, ref,
-            spotsList: coordenatesValuesList, startDate: _startDate);
+        return await _getMonthConfig(
+          context,
+          ref,
+          daysSinceInitYear: daysSinceInitYear,
+          spotsList: coordenatesValuesList,
+          startDate: _startDate,
+        );
 
       case TimeInverval.year:
         return _getYearConfig(context,
@@ -74,7 +80,8 @@ abstract class ConfigsGraphs {
           getTooltipItems: (touchedSpots) {
             return touchedSpots.map(
               (touchedSpot) {
-                return LineTooltipItem(touchedSpot.y.toInt().toString(),
+                return LineTooltipItem(
+                    ' ${diasDeLaSemana[touchedSpot.x.toInt() - lastMondayIndex]} \n${touchedSpot.y.toInt().toString()} clientes',
                     const TextStyle(color: Colors.green));
               },
             ).toList();
@@ -87,7 +94,7 @@ abstract class ConfigsGraphs {
                 gradient: LinearGradient(
                     begin: Alignment.center,
                     end: Alignment.bottomCenter,
-                    stops: [
+                    stops: const [
                       0.0,
                       0.5,
                       1.0
@@ -180,6 +187,7 @@ abstract class ConfigsGraphs {
   static Future<LineChartData> _getMonthConfig(
     BuildContext context,
     WidgetRef ref, {
+    required int daysSinceInitYear,
     required List<FlSpot> spotsList,
     required DateTime startDate,
   }) async {
@@ -188,25 +196,24 @@ abstract class ConfigsGraphs {
     double intervalY = _calculateIntervalY(spotsList,
         firstInterval: 2, secontInterval: 10, thirdInvertal: 25);
 
-    double minX = DateTime(DateTime.now().year, DateTime.now().month)
-        .difference(DateTime(DateTime.now().year))
+    double minX = DateTime.utc(DateTime.now().year, DateTime.now().month)
+        .difference(DateTime.utc(DateTime.now().year))
         .inDays
         .toDouble();
-    double maxX = DateTime(DateTime.now().year, DateTime.now().month)
-            .difference(DateTime(DateTime.now().year))
-            .inDays
-            .toDouble() +
-        DateTime(DateTime.now().year, DateTime.now().month + 1)
-            .difference(DateTime(DateTime.now().year, DateTime.now().month))
-            .inDays
-            .toDouble() -
-        1;
 
-    print(spotsList
-        .where(
-          (element) => element.x >= minX && element.x <= maxX,
-        )
-        .toList());
+    double maxX = DateTime.utc(DateTime.now().year, DateTime.now().month + 1, 0)
+        .difference(DateTime.utc(DateTime.now().year))
+        .inDays
+        .toDouble();
+    // double maxX = (DateTime(DateTime.now().year, DateTime.now().month)
+    //             .difference(DateTime(DateTime.now().year))
+    //             .inDays
+    //             .toDouble() +
+    //         DateTime(DateTime.now().year, DateTime.now().month + 1)
+    //             .difference(DateTime(DateTime.now().year, DateTime.now().month))
+    //             .inDays
+    //             .toDouble()) -
+    //     1;
 
     return LineChartData(
         borderData: FlBorderData(border: Border.all(color: Colors.white)),
@@ -214,7 +221,8 @@ abstract class ConfigsGraphs {
           getTooltipItems: (touchedSpots) {
             return touchedSpots.map(
               (touchedSpot) {
-                return LineTooltipItem(touchedSpot.y.toInt().toString(),
+                return LineTooltipItem(
+                    "${touchedSpot.x.toInt() - minX.toInt() + 1} de ${_getNameOfCurrentMonth(touchedSpot.x.toInt(), yearSelectedNumber: 2025)} \n  ${touchedSpot.y.toInt()} Clientes",
                     const TextStyle(color: Colors.green));
               },
             ).toList();
@@ -227,7 +235,7 @@ abstract class ConfigsGraphs {
                   gradient: LinearGradient(
                       begin: Alignment.center,
                       end: Alignment.bottomCenter,
-                      stops: [
+                      stops: const [
                         0.0,
                         0.5,
                         1.0
@@ -287,7 +295,7 @@ abstract class ConfigsGraphs {
                       return Text("${(value - minX + 1).toInt()}");
                     },
                     minIncluded: false,
-                    interval: 2,
+                    interval: 7,
                     showTitles: true,
                     reservedSize: size.height * 0.07)),
             leftTitles: AxisTitles(
@@ -299,6 +307,13 @@ abstract class ConfigsGraphs {
                 const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             rightTitles:
                 const AxisTitles(sideTitles: SideTitles(showTitles: false))));
+  }
+
+  static String _getNameOfCurrentMonth(int selectedDay,
+      {required int yearSelectedNumber}) {
+    return monthOfYearInSpanishList[
+        DateTime(yearSelectedNumber).add(Duration(days: selectedDay)).month -
+            1];
   }
 
   static LineChartData _getYearConfig(BuildContext context,
@@ -328,7 +343,7 @@ abstract class ConfigsGraphs {
                   gradient: LinearGradient(
                       begin: Alignment.center,
                       end: Alignment.bottomCenter,
-                      stops: [
+                      stops: const [
                         0.0,
                         0.5,
                         1.0
@@ -362,7 +377,7 @@ abstract class ConfigsGraphs {
         minY: 0,
         // maxY: _roundIntervalY(spotsList, intervalY),
         minX: 0,
-        maxX: 365,
+        maxX: 364,
         gridData: FlGridData(
           drawVerticalLine: false,
           horizontalInterval: spotsList
@@ -440,9 +455,7 @@ abstract class ConfigsGraphs {
           ? listToCalculate.length - 1
           : i + interval - 1;
       double averagedSpotY = 0;
-      // listToCalculate.sublist(i, lastIndex).map((e) {
-      //   averagedSpotY += e.y;
-      // });
+
       for (int y = i; y <= lastIndex; y++) {
         averagedSpotY += listToCalculate[y].y;
       }

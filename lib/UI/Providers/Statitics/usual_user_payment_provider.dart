@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/core/coordinate2d.dart';
 import 'package:gym_scanner/data/local/customers_database.dart';
-import 'package:gym_scanner/domain/customer_entity.dart';
+import 'package:gym_scanner/domain/usual_customer_entity.dart';
 
 final usualUserPaymentStatiticsProvider = StateNotifierProvider(
   (ref) {

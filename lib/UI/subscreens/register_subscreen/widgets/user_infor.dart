@@ -5,7 +5,7 @@ import 'package:gym_scanner/UI/subscreens/register_subscreen/widgets/scanner_cam
 import 'package:gym_scanner/UI/widgets/info_text.dart';
 import 'package:gym_scanner/core/Date/date_time_format.dart';
 
-import 'package:gym_scanner/domain/customer_entity.dart';
+import 'package:gym_scanner/domain/usual_customer_entity.dart';
 
 class UserInfoWidget extends ConsumerWidget {
   UserInfoWidget({super.key});

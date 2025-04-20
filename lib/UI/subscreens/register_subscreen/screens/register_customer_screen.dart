@@ -5,7 +5,7 @@ import 'package:gym_scanner/UI/Providers/Statitics/usual_user_payment_provider.d
 import 'package:gym_scanner/UI/Providers/usual_customers_list_provider.dart';
 import 'package:gym_scanner/UI/widgets/imageSelector/image_selected_widget.dart';
 
-import 'package:gym_scanner/domain/customer_entity.dart';
+import 'package:gym_scanner/domain/usual_customer_entity.dart';
 
 class CustomerRegisterScreen extends ConsumerWidget {
   CustomerRegisterScreen({super.key});
@@ -28,10 +28,10 @@ class CustomerRegisterScreen extends ConsumerWidget {
                   ref
                       .read(usualCustomerListProvider.notifier)
                       .addCustomer(UsualCustomerEntity(
+                        nameController.text.trim(),
                         creationDate: DateTime.now(),
                         lastPayment: DateTime.now(),
                         userImage: imageSelectedPro,
-                        nameController.text,
                         expiratioDate: DateTime.now().add(Duration(
                             days: int.tryParse(timeToAddTextController.text)! *
                                 30)),
@@ -67,6 +67,15 @@ class CustomerRegisterScreen extends ConsumerWidget {
                             if (value!.trim().isEmpty) {
                               return "Rellena los campo";
                             }
+
+                            if (ref.read(usualCustomerListProvider).any(
+                              (usualCustomer) {
+                                return nameController.text.trim() ==
+                                    usualCustomer.name;
+                              },
+                            )) {
+                              return 'Ya existe un usuario con ese nombre';
+                            }
                           },
                           decoration: const InputDecoration(
                             focusedBorder: OutlineInputBorder(
@@ -97,7 +106,13 @@ class CustomerRegisterScreen extends ConsumerWidget {
                           TextFormField(
                             validator: (value) {
                               if (value!.trim().isEmpty) {
-                                return "Rellena los campo";
+                                return "Rellena los campos";
+                              }
+                              if (int.parse(timeToAddTextController.value.text
+                                      .toString()
+                                      .trim()) <=
+                                  0) {
+                                return 'Debes agregar al menos un mes';
                               }
                             },
                             keyboardType: TextInputType.number,
