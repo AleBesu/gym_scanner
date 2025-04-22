@@ -93,18 +93,21 @@ class _settingsSubScreenAppbarState
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
       actions: [
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: InkWell(
-              onTap: () {
-                ref.read(themeIsDarkProvider.notifier).update(
-                      (state) => !state,
-                    );
-              },
-              child: Icon(ref.watch(themeIsDarkProvider)
-                  ? Icons.dark_mode
-                  : Icons.light_mode)),
-        )
+        // Padding(
+        //   padding: const EdgeInsets.all(20),
+        //   child:
+        //   InkWell(
+        //       onTap: () {
+        //         ref.read(themeIsDarkProvider.notifier).update(
+        //               (state) => !state,
+        //             );
+        //       },
+        //       child: Icon(ref.watch(themeIsDarkProvider)
+        //           ? Icons.dark_mode
+        //           : Icons.light_mode)
+
+        //           ),
+        // )
       ],
     );
   }

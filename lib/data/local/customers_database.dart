@@ -84,10 +84,8 @@ lastDateRegitred TEXT
   Future<void> close() async {
     final db = await database;
 
-    if (db != null) {
-      await db.close();
-      _database = null;
-    }
+    await db.close();
+    _database = null;
   }
 
   Future<DateTime> get startTimeDate async {

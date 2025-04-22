@@ -43,8 +43,7 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
     Size size = MediaQuery.of(context).size;
 
     if (ref.watch(isCameraUsingProvider)) {
-      return Expanded(
-          child: Stack(
+      return Stack(
         children: [
           GestureDetector(
               child: MobileScanner(
@@ -130,11 +129,10 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
             ),
           )
         ],
-      ));
+      );
     }
 
-    return Expanded(
-        child: Container(
+    return Container(
       color: Colors.black,
       child: Center(
         child: Column(
@@ -160,7 +158,7 @@ class _ScannerCameraWidgetState extends ConsumerState<ScannerCameraWidget> {
           ],
         ),
       ),
-    ));
+    );
   }
 
   Future<void> _setCurrentUsualCustomer(int id) async {

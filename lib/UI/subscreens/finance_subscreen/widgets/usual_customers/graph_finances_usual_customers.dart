@@ -6,6 +6,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/Providers/Statitics/usual_user_payment_provider.dart';
+import 'package:gym_scanner/core/Date/get/month_of_year_list.dart';
 import 'package:gym_scanner/domain/usual_customer_entity.dart';
 
 class GraphFinancesUsualCustomers extends ConsumerStatefulWidget {
@@ -89,8 +90,10 @@ class _GraphFinancesUsualCustomersState
           return BarChart(BarChartData(
               barTouchData: BarTouchData(touchTooltipData: BarTouchTooltipData(
                 getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                  return BarTooltipItem(rod.toY.toInt().toString(),
-                      TextStyle(color: Colors.green));
+                  return BarTooltipItem(
+                      "${monthOfYearInSpanishList[groupIndex]}\n${rod.toY.toInt().toString()} cliente${rod.toY.toInt() > 1 ? "s" : ""} suscrito${rod.toY.toInt() > 1 ? "s" : ""}",
+                      TextStyle(
+                          color: Colors.white, fontSize: size.width * 0.03));
                 },
               )),
               gridData: FlGridData(

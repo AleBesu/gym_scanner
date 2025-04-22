@@ -11,6 +11,7 @@ class SubScreenFinance extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     return Center(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Padding(
             padding: EdgeInsets.only(top: size.height * 0.04),

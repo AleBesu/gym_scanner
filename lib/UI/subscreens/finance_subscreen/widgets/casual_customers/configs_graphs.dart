@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gym_scanner/UI/Providers/Statitics/casual_user_payment_statitics_provider.dart';
 import 'package:gym_scanner/UI/Providers/year_selected_provider.dart';
+import 'package:gym_scanner/core/Date/get/get_day_of_year_number.dart';
+import 'package:gym_scanner/core/Date/get/get_middle_of_month.dart';
 import 'package:gym_scanner/core/Date/get/month_of_year_list.dart';
 
 import 'package:gym_scanner/core/Date/time_inverval.dart';
@@ -14,7 +16,7 @@ abstract class ConfigsGraphs {
     DateTime _startDate =
         await ref.read(casualUserPaymentStatiticsProvider.notifier).startDate;
     int daysSinceInitYear = ref.watch(yearSelectedIndexProvider) == 0
-        ? _startDate.difference(DateTime.utc(_startDate.year)).inDays
+        ? _startDate.toUtc().difference(DateTime(_startDate.year)).inDays
         : 0;
 
     coordenatesValuesList = coordenatesValuesList.map(
@@ -82,7 +84,7 @@ abstract class ConfigsGraphs {
               (touchedSpot) {
                 return LineTooltipItem(
                     ' ${diasDeLaSemana[touchedSpot.x.toInt() - lastMondayIndex]} \n${touchedSpot.y.toInt().toString()} clientes',
-                    const TextStyle(color: Colors.green));
+                    const TextStyle(color: Colors.white));
               },
             ).toList();
           },
@@ -223,7 +225,7 @@ abstract class ConfigsGraphs {
               (touchedSpot) {
                 return LineTooltipItem(
                     "${touchedSpot.x.toInt() - minX.toInt() + 1} de ${_getNameOfCurrentMonth(touchedSpot.x.toInt(), yearSelectedNumber: 2025)} \n  ${touchedSpot.y.toInt()} Clientes",
-                    const TextStyle(color: Colors.green));
+                    const TextStyle(color: Colors.white));
               },
             ).toList();
           },
@@ -316,12 +318,16 @@ abstract class ConfigsGraphs {
             1];
   }
 
+  static int _getCurrentMonthWithDayOfYear(int currentDayOfYear) {
+    return DateTime(DateTime.now().year)
+        .add(Duration(days: currentDayOfYear - 1))
+        .month;
+  }
+
   static LineChartData _getYearConfig(BuildContext context,
       {required List<FlSpot> spotsList, required DateTime startDate}) {
     Size size = MediaQuery.of(context).size;
-    if (spotsList.length >= 2) {
-      spotsList = _calculateMonthlyAverage(spotsList, 15);
-    }
+    final averagedFlSpotList = _calculateMonthlyAverage(spotsList);
     double intervalY = _calculateIntervalY(spotsList,
         firstInterval: 2, secontInterval: 10, thirdInvertal: 25);
     return LineChartData(
@@ -330,8 +336,15 @@ abstract class ConfigsGraphs {
           getTooltipItems: (touchedSpots) {
             return touchedSpots.map(
               (touchedSpot) {
-                return LineTooltipItem(touchedSpot.y.toInt().toString(),
-                    const TextStyle(color: Colors.green));
+                return LineTooltipItem(
+                    '${dayOfYearToDateTime(_getTimeIntervaSinceAPositionUntilAnother(spotsList, touchedSpot.x.toInt())[0] + 1).day} de ${monthOfYearInSpanishList[_getCurrentMonthWithDayOfYear(touchedSpot.x.toInt()) - 1]}  a \n'
+                    '${dayOfYearToDateTime(_getTimeIntervaSinceAPositionUntilAnother(spotsList, touchedSpot.x.toInt())[1] + 1).day} de ${monthOfYearInSpanishList[_getCurrentMonthWithDayOfYear(_getTimeIntervaSinceAPositionUntilAnother(spotsList, touchedSpot.x.toInt())[1]) - 1]}\n'
+                    'Clientes\n'
+                    'Promedio: ${touchedSpot.y.toInt()} \n'
+                    'Total ${_getTotalOfCustomerInATime(spotsList, touchedSpot.x.toInt())}',
+                    const TextStyle(
+                      color: Colors.white,
+                    ));
               },
             ).toList();
           },
@@ -368,11 +381,7 @@ abstract class ConfigsGraphs {
                       spotsList.last.y >= spotsList[spotsList.length - 2].y
                   ? Colors.green
                   : Colors.red,
-              // spots: spotsList.length < 36
-              //     ? spotsList.sublist(0, spotsList.length)
-              //     : spotsList.sublist(0, 36)
-
-              spots: spotsList)
+              spots: spotsList.length > 1 ? averagedFlSpotList : spotsList)
         ],
         minY: 0,
         // maxY: _roundIntervalY(spotsList, intervalY),
@@ -398,29 +407,29 @@ abstract class ConfigsGraphs {
                 sideTitles: SideTitles(
                     getTitlesWidget: (value, meta) {
                       switch (value) {
-                        case 0: // Enero
+                        case 0: // Enero (1 de enero)
                           return const Text("E");
-                        case 31: // Febrero
+                        case 31: // Febrero (1 de febrero)
                           return const Text("F");
-                        case 59: // Marzo
+                        case 59: // Marzo (1 de marzo)
                           return const Text("M");
-                        case 90: // Abril
+                        case 90: // Abril (1 de abril)
                           return const Text("A");
-                        case 120: // Mayo
+                        case 120: // Mayo (1 de mayo)
                           return const Text("M");
-                        case 151: // Junio
+                        case 151: // Junio (1 de junio)
                           return const Text("J");
-                        case 181: // Julio
+                        case 181: // Julio (1 de julio)
                           return const Text("J");
-                        case 212: // Agosto
+                        case 212: // Agosto (1 de agosto)
                           return const Text("A");
-                        case 243: // Septiembre
+                        case 243: // Septiembre (1 de septiembre)
                           return const Text("S");
-                        case 273: // Octubre
+                        case 273: // Octubre (1 de octubre)
                           return const Text("O");
-                        case 304: // Noviembre
+                        case 304: // Noviembre (1 de noviembre)
                           return const Text("N");
-                        case 334: // Diciembre
+                        case 334: // Diciembre (1 de diciembre)
                           return const Text("D");
 
                         default:
@@ -442,31 +451,168 @@ abstract class ConfigsGraphs {
                 const AxisTitles(sideTitles: SideTitles(showTitles: false))));
   }
 
-  static List<FlSpot> _calculateMonthlyAverage(
-      List<FlSpot> listToCalculate, int interval) {
-    interval =
-        listToCalculate.length < interval ? listToCalculate.length : interval;
+  static List<int> _getTimeIntervaSinceAPositionUntilAnother(
+      List<FlSpot> flSpotList, int x) {
+    int firstDayOfMonth = getDayOfYearNumber(DateTime.utc(
+      2025,
+      _getCurrentMonthWithDayOfYear(x),
+    ));
+
+    int middleOfCurrentMonthDayOfYear = getDayOfYearNumber(
+        getMiddleOfMonth(DateTime.utc(2025, _getCurrentMonthWithDayOfYear(x))));
+    int lastDayOfCurrentMonthDayOfYear = getDayOfYearNumber(getLastDayOfMonth(
+        getMiddleOfMonth(
+            DateTime.utc(2025, _getCurrentMonthWithDayOfYear(x)))));
+
+    int nextPointX = x == middleOfCurrentMonthDayOfYear ||
+            x <= middleOfCurrentMonthDayOfYear && x == flSpotList.last.x
+        ? middleOfCurrentMonthDayOfYear
+        : lastDayOfCurrentMonthDayOfYear;
+
+    return [x, nextPointX];
+  }
+
+  static List<FlSpot> _calculateMonthlyAverage(List<FlSpot> listToCalculate) {
+    // interval =
+    //     listToCalculate.length < interval ? listToCalculate.length : interval;
+    if (listToCalculate.length <= 1) {
+      return listToCalculate;
+    }
 
     List<FlSpot> newList = [];
 
-    int count = 1;
-    for (int i = 0; i < listToCalculate.length; i += interval) {
-      final lastIndex = (i + interval) > listToCalculate.length - 1
-          ? listToCalculate.length - 1
-          : i + interval - 1;
-      double averagedSpotY = 0;
+    //iterate through the spot list
+    for (int x = listToCalculate.first.x.toInt();
+        x <= listToCalculate.last.x;
+        x++) {
+      //this variables divide the month based on dayOfYear number x (or too coordente x of Fl spot of)
+      int firstDayOfMonth = getDayOfYearNumber(DateTime.utc(
+        2025,
+        _getCurrentMonthWithDayOfYear(x),
+      ));
 
-      for (int y = i; y <= lastIndex; y++) {
-        averagedSpotY += listToCalculate[y].y;
+      int middleOfCurrentMonthDayOfYear = getDayOfYearNumber(
+          getMiddleOfMonth(DateTime(2025, _getCurrentMonthWithDayOfYear(x))));
+      int lastDayOfCurrentMonthDayOfYear = getDayOfYearNumber(getLastDayOfMonth(
+          getMiddleOfMonth(DateTime(2025, _getCurrentMonthWithDayOfYear(x)))));
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+
+      // this for calculate for first half ofMonth Average
+      if (x == middleOfCurrentMonthDayOfYear ||
+          x <= middleOfCurrentMonthDayOfYear && x == listToCalculate.last.x) {
+        List<FlSpot> listToAverage = listToCalculate
+            .where(
+              (spot) =>
+                  spot.x >= firstDayOfMonth &&
+                  spot.x <= middleOfCurrentMonthDayOfYear,
+            )
+            .toList();
+        final spotAveraged = listToAverage.reduce(
+          (a, b) => FlSpot(a.x, a.y + b.y),
+        );
+
+        newList.add(FlSpot(spotAveraged.x,
+            (spotAveraged.y / listToAverage.length).toInt().toDouble()));
       }
 
-      averagedSpotY /= (lastIndex - i + 1);
-      count++;
-      newList.add(FlSpot(
-          listToCalculate[i].x.toDouble(), averagedSpotY.toInt().toDouble()));
+      // this for calculate for second half ofMonth Average
+      if (x == lastDayOfCurrentMonthDayOfYear ||
+          x > middleOfCurrentMonthDayOfYear && x == listToCalculate.last.x) {
+        List<FlSpot> listToAverage = listToCalculate
+            .where(
+              (spot) =>
+                  spot.x > middleOfCurrentMonthDayOfYear &&
+                  spot.x <= lastDayOfCurrentMonthDayOfYear,
+            )
+            .toList();
+
+        final spotAveraged = listToAverage.reduce(
+          (a, b) => FlSpot(a.x, a.y + b.y),
+        );
+
+        newList.add(FlSpot(spotAveraged.x,
+            (spotAveraged.y / listToAverage.length).toInt().toDouble()));
+      }
+    }
+    // return averaged list
+    return newList;
+  }
+
+  static int _getTotalOfCustomerInATime(
+      List<FlSpot> listToCalculate, int positionX) {
+    //!refactorizate this!!!!!!!!!!!!!!!!!!!!!!!!!
+    // interval =
+    //     listToCalculate.length < interval ? listToCalculate.length : interval;
+    if (listToCalculate.length <= 1) {
+      return listToCalculate.first.y.toInt();
     }
 
-    return newList;
+    List<FlSpot> newList = [];
+
+    //iterate through the spot list
+    for (int x = listToCalculate.first.x.toInt();
+        x <= listToCalculate.last.x.toInt();
+        x++) {
+      //this variables divide the month based on dayOfYear number x (or too coordente x of Fl spot of)
+      int firstDayOfMonth = getDayOfYearNumber(DateTime.utc(
+        2025,
+        _getCurrentMonthWithDayOfYear(x),
+      ));
+
+      int middleOfCurrentMonthDayOfYear = getDayOfYearNumber(
+          getMiddleOfMonth(DateTime(2025, _getCurrentMonthWithDayOfYear(x))));
+      int lastDayOfCurrentMonthDayOfYear = getDayOfYearNumber(getLastDayOfMonth(
+          getMiddleOfMonth(DateTime(2025, _getCurrentMonthWithDayOfYear(x)))));
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+
+      // this for calculate for first half ofMonth Average
+      if (x == middleOfCurrentMonthDayOfYear ||
+          x <= middleOfCurrentMonthDayOfYear && x == listToCalculate.last.x) {
+        List<FlSpot> listToAverage = listToCalculate
+            .where(
+              (spot) =>
+                  spot.x >= firstDayOfMonth &&
+                  spot.x <= middleOfCurrentMonthDayOfYear,
+            )
+            .toList();
+        final spotAveraged = listToAverage.reduce(
+          (a, b) => FlSpot(a.x, a.y + b.y),
+        );
+
+        newList
+            .add(FlSpot(spotAveraged.x, (spotAveraged.y).toInt().toDouble()));
+      }
+
+      // this for calculate for second half ofMonth Average
+      if (x == lastDayOfCurrentMonthDayOfYear ||
+          x > middleOfCurrentMonthDayOfYear && x == listToCalculate.last.x) {
+        List<FlSpot> listToAverage = listToCalculate
+            .where(
+              (spot) =>
+                  spot.x > middleOfCurrentMonthDayOfYear &&
+                  spot.x <= lastDayOfCurrentMonthDayOfYear,
+            )
+            .toList();
+
+        final spotAveraged = listToAverage.reduce(
+          (a, b) => FlSpot(a.x, a.y + b.y),
+        );
+
+        newList
+            .add(FlSpot(spotAveraged.x, (spotAveraged.y).toInt().toDouble()));
+      }
+    }
+    // return averaged list
+    return newList
+        .firstWhere(
+          (spot) {
+            return spot.x == positionX;
+          },
+        )
+        .y
+        .toInt();
   }
 
   static double _calculateIntervalY(List<FlSpot> spotsList,
